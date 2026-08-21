@@ -19,3 +19,5 @@ python3 -m http.server 8000
 ## Despliegue
 
 Sitio estático en Vercel: se publica el contenido de la raíz del repositorio tal cual.
+
+<!-- deploy trigger -->
