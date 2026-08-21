@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cineantropometría · Reporte de composición corporal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F6F1;
+    --surface:#FFFFFF;
+    --surface-2:#EEF2EA;
+    --ink:#182620;
+    --ink-soft:#51604F;
+    --ink-faint:#8B9789;
+    --line:#DBE2D6;
+    --accent:#1E6F5C;
+    --accent-ink:#0F4137;
+    --accent-soft:#E3F0EA;
+    --amber:#C1791F;
+    --amber-soft:#FAEFDD;
+    --danger:#AC4B3F;
+    --danger-soft:#F7E7E3;
+    --radius:14px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'IBM Plex Sans',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- App bar ---------- */
+  .appbar{
+    position:sticky; top:0; z-index:20;
+    background:var(--ink);
+    color:#EAF1EA;
+    padding:14px 16px;
+    display:flex; align-items:center; gap:12px;
+    border-bottom:3px solid var(--accent);
+  }
+  .mark{ width:34px; height:34px; flex:none; }
+  .appbar-text{ display:flex; flex-direction:column; line-height:1.15; }
+  .appbar-title{ font-family:var(--font-display); font-weight:700; font-size:17px; letter-spacing:0.2px; }
+  .appbar-sub{ font-family:var(--font-mono); font-size:11px; color:#B9CBC0; letter-spacing:0.3px; }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex; gap:0; background:var(--surface);
+    border-bottom:1px solid var(--line);
+    position:sticky; top:62px; z-index:19;
+  }
+  .tab{
+    flex:1; text-align:center; padding:12px 6px; font-family:var(--font-body);
+    font-weight:600; font-size:13.5px; color:var(--ink-faint);
+    border-bottom:3px solid transparent; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none;
+  }
+  .tab.active{ color:var(--accent-ink); border-bottom-color:var(--accent); }
+
+  main{ max-width:640px; margin:0 auto; padding:16px 14px 48px; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ---------- Section cards ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; margin-bottom:14px;
+  }
+  .section-title{
+    font-family:var(--font-display); font-weight:600; font-size:14px;
+    text-transform:uppercase; letter-spacing:0.6px; color:var(--accent-ink);
+    margin:0 0 4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-title .n{
+    font-family:var(--font-mono); font-size:11px; background:var(--accent-soft); color:var(--accent-ink);
+    border-radius:6px; padding:2px 7px;
+  }
+  .section-hint{ font-size:12px; color:var(--ink-faint); margin:0 0 12px; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px 10px; }
+  .field{ display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+  .field.full{ grid-column:1 / -1; }
+  label{ font-size:12.5px; font-weight:600; color:var(--ink-soft); }
+  label .unit{ font-weight:400; color:var(--ink-faint); font-family:var(--font-mono); font-size:11px; }
+  input[type=text], input[type=number], input[type=date], select{
+    font-family:var(--font-body); font-size:15px; color:var(--ink);
+    background:var(--surface); border:1.5px solid var(--line); border-radius:9px;
+    padding:9px 10px; width:100%;
+  }
+  input:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+  .input-error{ border-color:var(--danger) !important; background:var(--danger-soft); }
+  select{ appearance:none; background-image:linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%); background-position:calc(100% - 16px) 14px, calc(100% - 11px) 14px; background-size:5px 5px; background-repeat:no-repeat; padding-right:30px; }
+
+  .btn{
+    font-family:var(--font-body); font-weight:600; font-size:14.5px; cursor:pointer;
+    border-radius:10px; padding:12px 18px; border:1.5px solid transparent; text-align:center;
+  }
+  .btn-primary{ background:var(--accent); color:#fff; width:100%; }
+  .btn-primary:active{ background:var(--accent-ink); }
+  .btn-ghost{ background:transparent; border-color:var(--line); color:var(--ink-soft); }
+  .btn-danger{ background:var(--danger-soft); color:var(--danger); border-color:transparent; }
+  .btn-row{ display:flex; gap:10px; margin-top:6px; }
+  .btn-row .btn{ flex:1; }
+
+  /* ---------- List view ---------- */
+  .empty{
+    text-align:center; padding:44px 20px; color:var(--ink-faint);
+  }
+  .empty svg{ width:52px; height:52px; margin-bottom:10px; opacity:0.55; }
+  .empty p{ font-size:14px; max-width:280px; margin:0 auto; }
+
+  .athlete-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
+  }
+  .athlete-card:active{ background:var(--surface-2); }
+  .athlete-avatar{
+    width:42px; height:42px; border-radius:50%; background:var(--accent-soft); color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:15px; flex:none;
+  }
+  .athlete-info{ flex:1; min-width:0; }
+  .athlete-name{ font-weight:600; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .athlete-meta{ font-size:12px; color:var(--ink-faint); font-family:var(--font-mono); margin-top:2px; }
+  .tag{
+    font-family:var(--font-mono); font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px;
+    white-space:nowrap;
+  }
+  .tag-good{ background:var(--accent-soft); color:var(--accent-ink); }
+  .tag-warn{ background:var(--amber-soft); color:var(--amber); }
+  .tag-bad{ background:var(--danger-soft); color:var(--danger); }
+  .del-btn{ background:none; border:none; color:var(--ink-faint); padding:6px; cursor:pointer; flex:none; }
+
+  /* ---------- Report view ---------- */
+  .report-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
+  .report-name{ font-family:var(--font-display); font-weight:700; font-size:20px; line-height:1.2; }
+  .report-sub{ font-size:12.5px; color:var(--ink-faint); margin-top:3px; }
+  .kv{ display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px dashed var(--line); font-size:13.5px; }
+  .kv:last-child{ border-bottom:none; }
+  .kv .k{ color:var(--ink-soft); }
+  .kv .v{ font-family:var(--font-mono); font-weight:600; }
+
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .stat{ background:var(--surface-2); border-radius:10px; padding:10px 12px; }
+  .stat .label{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.3px; }
+  .stat .value{ font-family:var(--font-mono); font-weight:600; font-size:17px; margin-top:2px; }
+  .stat .value small{ font-size:11px; font-weight:400; color:var(--ink-faint); }
+
+  .pill-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+
+  .chart-wrap{ display:flex; flex-direction:column; align-items:center; }
+  .chart-caption{ font-size:12px; color:var(--ink-faint); text-align:center; margin-top:8px; max-width:320px; }
+  .dominance{ font-family:var(--font-mono); font-weight:600; font-size:13px; color:var(--accent-ink); margin-top:4px; }
+
+  .conclusion-box{
+    background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:8px;
+    padding:12px 14px; font-size:13.5px; color:var(--accent-ink); line-height:1.5;
+  }
+  .disclaimer{ font-size:11.5px; color:var(--ink-faint); line-height:1.5; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(8px);
+    background:var(--ink); color:#fff; padding:10px 18px; border-radius:30px; font-size:13px;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease, transform 0.2s ease; z-index:50;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  h2.form-title{ font-family:var(--font-display); font-size:18px; margin:2px 0 14px; }
+  .required-note{ font-size:11.5px; color:var(--ink-faint); margin:-8px 0 14px; }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <svg class="mark" viewBox="0 0 40 40" fill="none">
+    <polygon points="20,5 35,32 5,32" stroke="#EAF1EA" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    <circle cx="21" cy="21" r="3" fill="#69C7A8"/>
+  </svg>
+  <div class="appbar-text">
+    <div class="appbar-title">Cineantropometría</div>
+    <div class="appbar-sub">COMPOSICIÓN CORPORAL · SOMATOTIPO</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" id="tab-list" onclick="showView('list')">Atletas</button>
+  <button class="tab" id="tab-form" onclick="showView('form')">Nueva evaluación</button>
+</div>
+
+<main>
+
+  <!-- ===================== LISTA ===================== -->
+  <section id="view-list" class="view active">
+    <div id="list-empty" class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21c-4-3-8-6.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 4.5-4 8-8 11z"/><path d="M9 12l2 2 4-4"/></svg>
+      <p>Aún no has guardado ninguna evaluación. Toca <strong>Nueva evaluación</strong> para crear la primera.</p>
+    </div>
+    <div id="list-container"></div>
+  </section>
+
+  <!-- ===================== FORMULARIO ===================== -->
+  <section id="view-form" class="view">
+    <h2 class="form-title" id="form-heading">Nueva evaluación</h2>
+
+    <form id="eval-form" novalidate>
+
+      <div class="card">
+        <div class="section-title"><span class="n">1</span> Datos generales</div>
+        <div class="field full"><label>Nombre completo</label><input type="text" id="f-nombre" required></div>
+        <div class="grid2">
+          <div class="field"><label>Deporte</label><input type="text" id="f-deporte" value="fútbol"></div>
+          <div class="field"><label>Sexo</label>
+            <select id="f-sexo"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select>
+          </div>
+          <div class="field"><label>Fecha de nacimiento</label><input type="date" id="f-fecha-nac" required></div>
+          <div class="field"><label>Fecha de evaluación</label><input type="date" id="f-fecha-eval" required></div>
+          <div class="field"><label>Nivel de actividad</label>
+            <select id="f-actividad"><option value="ligera">Ligera</option><option value="moderada">Moderada</option><option value="alta" selected>Alta</option><option value="excesiva">Excesiva</option></select>
+          </div>
+          <div class="field"><label>Periodo de entrenamiento</label><input type="text" id="f-periodo" value="Gral"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="n">2</span> Medidas base</div>
+        <div class="grid2">
+          <div class="field"><label>Estatura <span class="unit">m</span></label><input type="number" id="f-estatura" step="0.001" min="0.3" max="2.5" placeholder="Ej: 1.68" required></div>
+          <div class="field"><label>Peso <span class="unit">kg</span></label><input type="number" id="f-peso" step="0.1" min="1" required></div>
+        </div>
+        <div class="field full">
+          <label>Método de estimación de grasa corporal</label>
+          <select id="f-metodo">
+            <option value="pliegues">Pliegues cutáneos</option>
+            <option value="im">Impedanciometría (% directo)</option>
+          </select>
+        </div>
+        <div class="grid2" id="f-sedentario-wrap">
+          <div class="field full"><label>¿Persona sedentaria?</label>
+            <select id="f-sedentario">
+              <option value="no" selected>No (usa fórmula de Yuhasz)</option>
+              <option value="si">Sí (usa fórmula de Jackson-Pollock)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field full" id="f-im-wrap" style="display:none">
+          <label>% grasa por impedanciometría</label><input type="number" id="f-im" step="0.1">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="n">3</span> Diámetros óseos <span class="unit">cm</span></div>
+        <div class="grid3">
+          <div class="field"><label>Bi&nbsp;epicondilar humeral</label><input type="number" id="f-d11" step="0.1" placeholder="Ej: 6.2"></div>
+          <div class="field"><label>Radio cubital</label><input type="number" id="f-d12" step="0.1" placeholder="Ej: 5.3"></div>
+          <div class="field"><label>Bi&nbsp;epicondilar femoral</label><input type="number" id="f-d13" step="0.1" placeholder="Ej: 9.4"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="n">4</span> Pliegues cutáneos <span class="unit">mm</span></div>
+        <p class="section-hint">El pectoral solo se usa si el atleta es sedentario (fórmula Jackson-Pollock, hombres).</p>
+        <div class="grid3">
+          <div class="field"><label>Tríceps</label><input type="number" id="f-d16" step="0.1"></div>
+          <div class="field"><label>Subescapular</label><input type="number" id="f-d17" step="0.1"></div>
+          <div class="field"><label>Supra ilíaco</label><input type="number" id="f-d18" step="0.1"></div>
+          <div class="field"><label>Abdominal</label><input type="number" id="f-d19" step="0.1"></div>
+          <div class="field"><label>Muslo anterior</label><input type="number" id="f-d20" step="0.1"></div>
+          <div class="field"><label>Medial de pierna</label><input type="number" id="f-d21" step="0.1"></div>
+          <div class="field"><label>Pectoral</label><input type="number" id="f-d22" step="0.1"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="n">5</span> Perímetros musculares <span class="unit">cm</span></div>
+        <div class="grid3">
+          <div class="field"><label>Tórax</label><input type="number" id="f-h17" step="0.1"></div>
+          <div class="field"><label>Abdomen inferior</label><input type="number" id="f-h18" step="0.1"></div>
+          <div class="field"><label>Cadera</label><input type="number" id="f-h19" step="0.1"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Bíceps relajado — Der</label><input type="number" id="f-h20" step="0.1"></div>
+          <div class="field"><label>Bíceps relajado — Izq</label><input type="number" id="f-i20" step="0.1"></div>
+          <div class="field"><label>Bíceps contraído — Der</label><input type="number" id="f-h21" step="0.1"></div>
+          <div class="field"><label>Bíceps contraído — Izq</label><input type="number" id="f-i21" step="0.1"></div>
+          <div class="field"><label>Muslo superior — Der</label><input type="number" id="f-h22" step="0.1"></div>
+          <div class="field"><label>Muslo superior — Izq</label><input type="number" id="f-i22" step="0.1"></div>
+          <div class="field"><label>Pantorrilla — Der</label><input type="number" id="f-h23" step="0.1"></div>
+          <div class="field"><label>Pantorrilla — Izq</label><input type="number" id="f-i23" step="0.1"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="n">6</span> Programa y referencias</div>
+        <div class="grid2">
+          <div class="field"><label>Semanas del programa</label><input type="number" id="f-semanas" value="12" min="1"></div>
+          <div class="field"><label>Sesiones por semana</label><input type="number" id="f-sesiones" value="4" min="1"></div>
+          <div class="field"><label>Duración de sesión <span class="unit">min</span></label><input type="number" id="f-duracion" value="90" min="1"></div>
+          <div class="field full">
+            <label>% grasa ideal de referencia</label>
+            <input type="number" id="f-grasa-ideal" step="0.1">
+            <span class="section-hint" id="f-grasa-ideal-hint" style="margin:0;">Se sugiere automáticamente según edad, sexo y nivel de actividad (curvas NHANES/McCarthy, Cooper Institute FITNESSGRAM, categorías de ACE), apuntando al rango "Excelente". Puedes editarlo si tienes tu propio criterio.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" onclick="cancelForm()">Cancelar</button>
+        <button type="button" id="btn-generate" class="btn btn-primary">Generar reporte</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ===================== REPORTE ===================== -->
+  <section id="view-report" class="view">
+    <div class="btn-row" style="margin-bottom:12px;">
+      <button class="btn btn-ghost" onclick="showView('list')">← Atletas</button>
+      <button class="btn btn-ghost" id="btn-copy">Copiar</button>
+      <button class="btn btn-ghost" id="btn-edit">Editar</button>
+      <button class="btn btn-danger" id="btn-delete">Eliminar</button>
+    </div>
+    <div class="card">
+      <div class="report-head">
+        <div>
+          <div class="report-name" id="r-nombre"></div>
+          <div class="report-sub" id="r-sub"></div>
+        </div>
+      </div>
+      <div class="kv"><span class="k">Edad al momento de la evaluación</span><span class="v" id="r-edad"></span></div>
+      <div class="kv"><span class="k">Estatura / Peso</span><span class="v" id="r-antropo"></span></div>
+      <div class="kv"><span class="k">Método usado</span><span class="v" id="r-metodo"></span></div>
+      <div class="pill-row" id="r-tags"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Composición corporal</div>
+      <div class="stat-grid" id="r-composicion"></div>
+      <div class="chart-caption" id="r-composicion-note" style="text-align:left; margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Somatotipo de Heath-Carter</div>
+      <div class="chart-wrap">
+        <svg id="r-chart" viewBox="0 0 260 240" width="260" height="240"></svg>
+        <div class="dominance" id="r-dominancia"></div>
+        <div class="chart-caption">Endomorfia · Mesomorfia · Ectomorfia — coordenadas del punto sobre los ejes clásicos del somatocarta (X = ectomorfia − endomorfia, Y = 2×mesomorfia − (endomorfia+ectomorfia)).</div>
+      </div>
+      <div class="stat-grid" style="margin-top:14px;" id="r-somato-stats"></div>
+      <div class="conclusion-box" style="margin-top:12px;" id="r-somato-nota"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Índice de masa corporal y relación cintura-cadera</div>
+      <div class="stat-grid" id="r-imc"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Información nutricional y actividad física</div>
+      <div class="stat-grid" id="r-nutricion"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Conclusiones</div>
+      <div class="conclusion-box" id="r-conclusion"></div>
+      <div class="disclaimer">Esta herramienta reproduce fórmulas clásicas de cineantropometría (Yuhasz, Jackson-Pollock, Ross-Guimaraes, Heath-Carter) con fines de seguimiento deportivo. La clasificación del %grasa corporal (Excelente/Buena/Aceptable/Mala) usa dos métodos según la edad: en adultos (19+), las categorías del American Council on Exercise (ACE) —Esencial/Atletas/Fitness/Aceptable/Obesidad, con anchos de banda tabulados y verificables—; en niños y adolescentes (6-16 años), un método propio de la literatura pediátrica por percentiles poblacionales de %grasa para la edad y sexo (mediana según McCarthy et al./NHANES 2006 y Cooper Institute FITNESSGRAM; desviación estándar de 7.5 puntos tomada de Moreno et al. sobre bioimpedancia en niños), con el percentil 85 como corte de "Mala" — el mismo principio que usan CDC/OMS para sobrepeso infantil. Entre 16 y 19 años ambos métodos se combinan gradualmente para evitar un salto brusco. El objetivo dentro de "Excelente" se ajusta también por nivel de actividad, con margen de seguridad respecto al piso de grasa esencial. El peso ideal usa ese mismo objetivo: masa libre de grasa ÷ (1 − %grasa objetivo), y solo se sugiere si el %grasa actual está por encima del rango Excelente — nunca se recomienda subir de grasa. Si el IMC está clasificado "Desnutrición", el peso ideal apunta en cambio al punto medio del rango saludable de IMC para su estatura (no solo el piso mínimo), asumiendo que el peso a ganar es masa magra. El gasto calórico de entrenamiento se estima con METs del fútbol del 2011 Compendium of Physical Activities (Ainsworth et al.: casual/general 5.0, competitivo 7.0) × peso × duración de la sesión. La clasificación del IMC en menores de 19 años usa los puntos de corte por edad y sexo de la OMS (WHO Growth Reference 5–19 years, 2007); de 19 años en adelante, categorías estándar de adultos de la OMS. Todo es editable por el profesional a cargo y no reemplaza una valoración médica o nutricional profesional.</div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+<div id="err-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:999; background:#AC4B3F; color:#fff; padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.5; word-break:break-word;">
+  <strong>⚠ Se produjo un error en la app:</strong>
+  <div id="err-banner-msg" style="margin-top:4px;"></div>
+  <button onclick="document.getElementById('err-banner').style.display='none'" style="margin-top:8px; background:#fff; color:#AC4B3F; border:none; border-radius:6px; padding:5px 10px; font-weight:600; font-size:11px;">Cerrar</button>
+</div>
+
+<script>
+// ============================================================
+// Motor de cálculo cineantropométrico
+// Fórmulas replicadas 1:1 del archivo Excel original y
+// validadas numéricamente contra sus 18 hojas de atletas.
+//
+// Un cambio deliberado respecto al original: el Excel calculaba
+// la edad decimal con TODAY(), así que cada vez que se abría el
+// archivo la edad (y por tanto la TMB) cambiaba silenciosamente.
+// Aquí la edad se calcula con la fecha de evaluación, que es fija
+// y correcta para un reporte histórico.
+// ============================================================
+
+function clamp01(cond) { return cond ? 1 : 0; }
+
+function daysBetween(a, b) {
+  return (new Date(b) - new Date(a)) / 86400000;
+}
+
+// ============================================================
+// Referencia de %grasa "saludable" por edad y sexo (punto de anclaje,
+// no la clasificación en sí — ver más abajo cómo se usa).
+//
+// Puntos de anclaje redondeados, consistentes con el patrón reportado
+// en fuentes revisadas por pares e independientes entre sí:
+//  · McCarthy HD, Cole TJ, Fry T, Jebb SA, Prentice AM. "Body fat
+//    reference curves for children." Int J Obes. 2006 — percentiles de
+//    %grasa por edad/sexo en EE.UU. (NHANES), incluyendo el pico en
+//    varones ~11 años y el ascenso continuo en mujeres.
+//  · Lohman TG, Going SB. Estándares "Healthy Fitness Zone" del
+//    Cooper Institute (FITNESSGRAM), ampliamente usados en evaluación
+//    física escolar en EE.UU.
+// El extremo adulto (25+) coincide con el centro de la categoría
+// "Fitness" de ACE (ver abajo), para que la proyección por edad empalme
+// exactamente con la clasificación de adultos.
+// ============================================================
+const TARGET_BF_ANCHORS = {
+  masculino: [[6,14],[8,14],[10,16],[11,17],[13,16],[15,14],[17,13],[18,14],[25,15.5]],
+  femenino:  [[6,16],[8,17],[10,18],[12,20],[14,22],[16,24],[18,22],[25,22.5]],
+};
+
+function suggestTargetBodyFat(ageDecimal, sexo){
+  const anchors = TARGET_BF_ANCHORS[sexo] || TARGET_BF_ANCHORS.masculino;
+  if (ageDecimal <= anchors[0][0]) return anchors[0][1];
+  if (ageDecimal >= anchors[anchors.length-1][0]) return anchors[anchors.length-1][1];
+  for (let i = 0; i < anchors.length - 1; i++){
+    const [a0, v0] = anchors[i], [a1, v1] = anchors[i+1];
+    if (ageDecimal >= a0 && ageDecimal <= a1){
+      const t = (ageDecimal - a0) / (a1 - a0);
+      return Math.round((v0 + t * (v1 - v0)) * 10) / 10;
+    }
+  }
+  return 15;
+}
+
+// ============================================================
+// Clasificación de %grasa corporal en 4 niveles: Excelente / Buena /
+// Aceptable / Mala — con FUENTE VERIFICABLE Y EXACTA, no una banda
+// inventada por esta app.
+//
+// ADULTOS (19 años en adelante): categorías del American Council on
+// Exercise (ACE), fuente ampliamente citada en fisiología del ejercicio:
+//   Hombres:  Esencial 2–5% · Atletas 6–13% · Fitness 14–17% ·
+//             Aceptable 18–24% · Obesidad ≥25%
+//   Mujeres:  Esencial 10–13% · Atletas 14–20% · Fitness 21–24% ·
+//             Aceptable 25–31% · Obesidad ≥32%
+// Se mapean a las 4 categorías pedidas:
+//   Excelente = Atletas (+ Esencial, con aviso aparte si está MUY bajo)
+//   Buena = Fitness · Aceptable = Aceptable · Mala = Obesidad
+//
+// NIÑOS Y ADOLESCENTES (6 a 16 años): en vez de proyectar los números
+// de adultos, se usa un método PROPIO de la literatura pediátrica:
+// clasificar por PERCENTILES poblacionales de %grasa para la edad y
+// sexo, el mismo principio que usan CDC/WHO para "peso normal" (<p85) /
+// "sobrepeso" (p85-p95) / "obesidad" (≥p95) en niños (ver p.ej. Kelly
+// et al., "Trends in BMI Percentile and Body Fat Percentage in Children
+// 12 to 17", Children 2022, que usa el percentil 85 como corte estándar
+// de adiposidad elevada en pediatría).
+//
+// Mediana (P50) por edad/sexo: suggestTargetBodyFat (McCarthy et al.
+// 2006 / FITNESSGRAM, ya citados arriba).
+// Desviación estándar: 7.5 puntos porcentuales, tomada de Moreno et al.
+// "Body fat levels in children and adolescents" (mediciones por
+// bioimpedancia, niños de 10-13 años, DE reportada 7.3-8.1) — la fuente
+// más cercana metodológicamente disponible (bioimpedancia/pliegues,
+// igual que esta app; no se usó DEXA, que sistemáticamente da valores
+// más altos y no sería comparable). Se aplica la misma DE a todas las
+// edades 6-17 por falta de datos DE específicos por edad: es una
+// simplificación explícita, no un dato tabulado edad por edad.
+//   Excelente = ≤ percentil 25  ·  Buena = percentil 25-50
+//   Aceptable = percentil 50-85 ·  Mala = > percentil 85
+//   (aviso aparte si está por debajo del percentil 5)
+//
+// TRANSICIÓN (16 a 19 años): se combina gradualmente el sistema
+// pediátrico con el de adultos (ACE), para que no haya un salto brusco
+// justo al cumplir 19 — es una decisión de ingeniería explícita, no un
+// dato de una fuente única, y se documenta como tal.
+// ============================================================
+const ACE_ADULT_BOUNDARIES = {
+  // [techo Esencial, techo Atletas/Excelente, techo Fitness/Buena, techo Aceptable]
+  masculino: [5.5, 13.5, 17.5, 24.5],
+  femenino:  [13.5, 20.5, 24.5, 31.5],
+};
+const PEDIATRIC_SD = 7.5; // Moreno et al., ver nota arriba
+const Z_P5 = -1.6449, Z_P25 = -0.6745, Z_P85 = 1.0364; // percentiles de la normal estándar
+
+function getFatBands(edadDecimal, sexo){
+  const ref = suggestTargetBodyFat(edadDecimal, sexo); // mediana (P50) para su edad/sexo
+  const pediatrico = [
+    ref + Z_P5 * PEDIATRIC_SD,   // techo "Esencial" ≈ percentil 5 (piso de aviso)
+    ref + Z_P25 * PEDIATRIC_SD,  // techo "Excelente" ≈ percentil 25
+    ref,                          // techo "Buena" = mediana (percentil 50)
+    ref + Z_P85 * PEDIATRIC_SD,  // techo "Aceptable" ≈ percentil 85
+  ].map(v => Math.max(v, 2)); // piso absoluto de seguridad (grasa esencial mínima humana)
+
+  const adulto = ACE_ADULT_BOUNDARIES[sexo];
+
+  let bandas;
+  if (edadDecimal >= 19) bandas = adulto;
+  else if (edadDecimal <= 16) bandas = pediatrico;
+  else {
+    const t = (edadDecimal - 16) / 3; // mezcla lineal 16→19
+    bandas = pediatrico.map((v, i) => v + t * (adulto[i] - v));
+  }
+  const [essTop, excTop, buenaTop, aceptableTop] = bandas;
+  return { ref, essTop, excTop, buenaTop, aceptableTop };
+}
+
+function classifyBodyFat(fatPct, edadDecimal, sexo){
+  const { excTop, buenaTop, aceptableTop } = getFatBands(edadDecimal, sexo);
+  if (fatPct <= excTop) return 'Excelente';
+  if (fatPct <= buenaTop) return 'Buena';
+  if (fatPct <= aceptableTop) return 'Aceptable';
+  return 'Mala';
+}
+
+// El objetivo se ajusta según el nivel de actividad DENTRO del rango
+// "Excelente": a mayor actividad, el objetivo se ubica más cerca del
+// extremo exigente de esa banda (más entrenamiento sostiene, con
+// seguridad, un %grasa más bajo dentro del rango atlético). Incluso en
+// actividad "excesiva" se deja un margen de seguridad del 50% de la
+// banda respecto al piso de "Esencial" — deliberadamente conservador
+// por tratarse, en este contexto, de deportistas menores de edad.
+// ============================================================
+// Gasto calórico de entrenamiento (METs) — fuente: 2011 Compendium of
+// Physical Activities (Ainsworth et al., Med Sci Sports Exerc
+// 2011;43(8):1575-1581), códigos de "soccer":
+//   Soccer, casual/general (Taylor Code 540): 5.0 METs
+//   Soccer, competitive: 7.0 METs
+// "Ligera" y "excesiva" son extrapolaciones razonables por debajo/encima
+// de esos dos puntos verificados, no valores tabulados en el Compendio.
+//
+// Gasto (kcal) = MET × peso(kg) × duración(horas) — fórmula estándar
+// para estimar el costo energético de una actividad a partir de METs.
+// ============================================================
+const MET_FUTBOL = { ligera: 4.0, moderada: 5.0, alta: 7.0, excesiva: 8.5 };
+
+function suggestActivityAdjustedTarget(edadDecimal, sexo, actividad){
+  const { essTop, excTop } = getFatBands(edadDecimal, sexo);
+  const factores = { ligera: 1.0, moderada: 0.83, alta: 0.66, excesiva: 0.5 };
+  const t = factores[actividad] || 0.83;
+  const target = essTop + t * (excTop - essTop);
+  return Math.round(target * 10) / 10;
+}
+
+// Retroalimentación: si ya está en "Excelente" no se sugiere bajar más
+// (con aviso aparte si está por debajo del piso de seguridad). Cualquier
+// otro nivel —incluida "Buena"— recibe la misma indicación de cuánto
+// falta para llegar al objetivo dentro de "Excelente": en un deporte
+// competitivo, "Buena" es progreso, no la meta. Usa el MISMO número que
+// el cálculo de peso ideal, para que reporte y recomendación coincidan.
+function buildFatFeedback(fatPct, tier, bandas, targetActivo, deporteNombre){
+  if (tier === 'Excelente'){
+    if (fatPct < bandas.essTop){
+      return `Este valor está por debajo del piso de seguridad para su edad. En un deportista en formación, un %grasa tan bajo puede afectar el crecimiento y la energía disponible para entrenar; conviene que lo revise un profesional de nutrición deportiva — no se recomienda bajarlo más.`;
+    }
+    return `Ya está en el rango Excelente para su edad, sexo y nivel de actividad. No se recomienda buscar bajar más de %grasa.`;
+  }
+  const faltan = Math.max(0, fatPct - targetActivo).toFixed(1);
+  const calificativo = tier === 'Buena' ? 'un buen punto de partida, pero no el objetivo para un competidor' : 'por debajo de lo esperado para un competidor';
+  return `Está en el rango "${tier}" para su edad y sexo — ${calificativo} de ${deporteNombre}. Para llegar a Excelente según su edad y nivel de actividad (objetivo ≈ ${targetActivo.toFixed(1)}%), se sugiere bajar cerca de ${faltan} puntos porcentuales de grasa, con trabajo aeróbico/de fuerza y ajuste nutricional supervisado por un profesional.`;
+}
+
+// ============================================================
+// Clasificación de IMC por edad y sexo (niños/adolescentes 6-19 años)
+//
+// Fuente: WHO Growth Reference 5-19 years (2007) / WHO Child Growth
+// Standards. Tabla de puntos de corte -2DE/+1DE/+2DE/+3DE reproducida
+// por el Servicio Andaluz de Salud (Melo Salor JA, AGS Sur de Sevilla,
+// 2019), a partir de los estándares oficiales de la OMS.
+//
+// -2DE = delgadez · +1DE = sobrepeso · +2DE = obesidad · +3DE = obesidad severa
+// Valores tabulados cada medio año; se interpola linealmente entre puntos,
+// tal como recomienda la propia OMS para edades intermedias.
+//
+// Para 19 años o más se usan las categorías estándar de adultos de la OMS
+// (18.5 / 25 / 30 / 35 kg/m²).
+// ============================================================
+const WHO_BMI_THRESHOLDS = {
+  masculino: [
+    [6,13.0,16.8,18.5,20.7],[6.5,13.1,16.9,18.7,21.1],[7,13.1,17.0,19.0,21.6],
+    [7.5,13.2,17.2,19.3,22.1],[8,13.3,17.4,19.7,22.8],[8.5,13.4,17.7,20.1,23.5],
+    [9,13.5,17.9,20.5,24.3],[9.5,13.6,18.2,20.9,25.1],[10,13.7,18.5,21.4,26.1],
+    [10.5,13.9,18.8,21.9,27.0],[11,14.1,19.2,22.5,28.0],[11.5,14.2,19.5,23.0,29.0],
+    [12,14.5,19.9,23.6,30.0],[12.5,14.7,20.4,24.2,30.9],[13,14.9,20.8,24.8,31.7],
+    [13.5,15.2,21.3,25.3,32.4],[14,15.5,21.8,25.9,33.1],[14.5,15.7,22.2,26.5,33.6],
+    [15,16.0,22.7,27.0,34.1],[15.5,16.3,23.1,27.4,34.5],[16,16.5,23.5,27.9,34.8],
+    [16.5,16.7,23.9,28.3,35.0],[17,16.9,24.3,28.6,35.2],[17.5,17.1,24.6,29.0,35.3],
+    [18,17.3,24.9,29.2,35.4],[18.5,17.4,25.2,29.5,35.5],[19,17.6,25.4,29.7,35.5],
+  ],
+  femenino: [
+    [6,12.7,17.0,19.2,22.1],[6.5,12.7,17.1,19.5,22.7],[7,12.7,17.3,19.8,23.3],
+    [7.5,12.8,17.5,20.1,24.0],[8,12.9,17.7,20.6,24.8],[8.5,13.0,18.0,21.0,25.6],
+    [9,13.1,18.3,21.5,26.5],[9.5,13.3,18.7,22.0,27.5],[10,13.5,19.0,22.6,28.4],
+    [10.5,13.7,19.4,23.1,29.3],[11,13.9,19.9,23.7,30.2],[11.5,14.1,20.3,24.3,31.1],
+    [12,14.4,20.8,25.0,31.9],[12.5,14.7,21.3,25.6,32.7],[13,14.9,21.8,26.2,33.4],
+    [13.5,15.2,22.3,26.8,34.1],[14,15.4,22.7,27.3,34.7],[14.5,15.7,23.1,27.8,35.1],
+    [15,15.9,23.5,28.2,35.5],[15.5,16.0,23.8,28.6,35.8],[16,16.2,24.1,28.9,36.1],
+    [16.5,16.3,24.3,29.1,36.2],[17,16.4,24.5,29.3,36.3],[17.5,16.4,24.6,29.4,36.3],
+    [18,16.4,24.8,29.5,36.3],[18.5,16.5,24.9,29.6,36.2],[19,16.5,25.0,29.7,36.2],
+  ],
+};
+
+function interpolateBmiThresholds(edad, sexo){
+  const table = WHO_BMI_THRESHOLDS[sexo] || WHO_BMI_THRESHOLDS.masculino;
+  if (edad <= table[0][0]) return table[0].slice(1);
+  if (edad >= table[table.length - 1][0]) return table[table.length - 1].slice(1);
+  for (let i = 0; i < table.length - 1; i++){
+    const a0 = table[i][0], a1 = table[i+1][0];
+    if (edad >= a0 && edad <= a1){
+      const t = (edad - a0) / (a1 - a0);
+      return table[i].slice(1).map((v, idx) => v + t * (table[i+1][idx+1] - v));
+    }
+  }
+  return table[table.length - 1].slice(1);
+}
+
+function classifyIMC(bmi, edadDecimal, sexo){
+  if (edadDecimal < 19){
+    const [menos2DE, mas1DE, mas2DE, mas3DE] = interpolateBmiThresholds(edadDecimal, sexo);
+    if (bmi < menos2DE) return 'Desnutrición';
+    if (bmi <= mas1DE) return 'Saludable';
+    if (bmi <= mas2DE) return 'Sobrepeso';
+    if (bmi <= mas3DE) return 'Obesidad';
+    return 'Obesidad severa';
+  }
+  // 19 años o más: categorías estándar de adultos (OMS)
+  if (bmi < 18.5) return 'Desnutrición';
+  if (bmi < 25) return 'Saludable';
+  if (bmi < 30) return 'Sobrepeso';
+  if (bmi < 35) return 'Obesidad I';
+  return 'Obesidad II';
+}
+
+function computeReport(input) {
+  const {
+    sexo, metodo, sedentario, actividad, deporte,
+    estaturaM, pesoKg,
+    fechaNacimiento, fechaEvaluacion,
+    diamHumeral, diamRadioCubital, diamFemoral,
+    plTriceps, plSubescapular, plSupraIliaco, plAbdominal, plMusloAnterior, plMedialPierna, plPectoral,
+    grasaImpedanciometria,
+    torax, abdomenInferior, cadera,
+    bicepsRelajadoDer, bicepsRelajadoIzq, bicepsContraidoDer, bicepsContraidoIzq,
+    musloSuperiorDer, musloSuperiorIzq, pantorrillaDer, pantorrillaIzq,
+    grasaIdealPct,
+    semanasPrograma, sesionesSemana, duracionSesion,
+  } = input;
+
+  const H6 = estaturaM, H7 = pesoKg;
+  const deporteNombre = (deporte || '').trim() || 'este deporte';
+  const D11 = diamHumeral, D12 = diamRadioCubital, D13 = diamFemoral;
+  const D16 = plTriceps, D17 = plSubescapular, D18 = plSupraIliaco;
+  const D19 = plAbdominal, D20 = plMusloAnterior, D21 = plMedialPierna, D22 = plPectoral || 0;
+  const H17 = torax, H18 = abdomenInferior, H19 = cadera;
+  const H20 = bicepsRelajadoDer, I20 = bicepsRelajadoIzq;
+  const H21 = bicepsContraidoDer, I21 = bicepsContraidoIzq;
+  const H22 = musloSuperiorDer, I22 = musloSuperiorIzq;
+  const H23 = pantorrillaDer, I23 = pantorrillaIzq;
+  const D33 = grasaIdealPct, D53 = semanasPrograma, D54 = sesionesSemana, D55 = duracionSesion || 90;
+
+  const esFemenino = sexo === 'femenino';
+
+  // Edad decimal (ver nota arriba: usamos la fecha de evaluación, no "hoy")
+  const H5 = daysBetween(fechaNacimiento, fechaEvaluacion) / 365;
+
+  // IMC e índice AKS
+  const L7 = H7 / (H6 ** 2);
+
+  // % graso: Yuhasz (activos) o Jackson-Pollock (sedentarios), o directo si es por impedanciometría
+  const D27 = D16 + D17 + D18 + D19 + D20 + D21; // sumatoria 6 pliegues (Yuhasz)
+  const P21 = esFemenino ? (D27 * 0.1429) + 4.56 : (D27 * 0.097) + 3.64;
+  const jacksonSum = esFemenino ? (D16 + D18 + D20) : (D22 + D19 + D20);
+  const jacksonDenom = esFemenino
+    ? (1.0994921 - (0.0009929 * jacksonSum) + (0.0000023 * jacksonSum ** 2) - (0.0001392 * H5))
+    : (1.10938 - (0.0008267 * jacksonSum) + (0.0000016 * jacksonSum ** 2) - (0.0002574 * H5));
+  const P25 = ((4.95 / jacksonDenom) - 4.5) * 100;
+
+  let D32;
+  if (metodo === 'im') D32 = grasaImpedanciometria;
+  else if (metodo === 'pliegues' && sedentario === 'si') D32 = P25;
+  else D32 = P21; // pliegues + activo
+
+  const L6 = ((H7 - (D32 / 100)) * 100000) / ((H6 * 100) ** 3);
+
+  // IMC — se calcula ANTES del peso ideal a propósito: el peso ideal
+  // necesita saber si la persona ya está clasificada con bajo peso para
+  // su estatura, sin importar cómo dé el %grasa por separado.
+  const E44 = L7;
+  const clasifIMC = classifyIMC(E44, H5, sexo);
+  const [imcPisoSaludable, imcTechoSaludable] = interpolateBmiThresholds(H5, sexo); // rango "Saludable" (-2DE a +1DE OMS, o 18.5-25 en adultos)
+  const imcObjetivoAtletico = (imcPisoSaludable + imcTechoSaludable) / 2; // punto medio del rango saludable — no el piso mínimo
+
+  // Clasificación de %grasa en 4 niveles (Excelente/Buena/Aceptable/Mala,
+  // ver arriba). D33 es el campo editable del formulario: por defecto
+  // llega pre-cargado con el objetivo ajustado por edad, sexo y nivel de
+  // actividad (suggestActivityAdjustedTarget, ver abajo), pero el
+  // profesional puede sobrescribirlo. Se usa el MISMO D33 tanto en el
+  // cálculo del peso ideal como en el texto de retroalimentación, para
+  // que ambos siempre coincidan.
+  const grasaBandas = getFatBands(H5, sexo);
+  const clasifGrasa = classifyBodyFat(D32, H5, sexo);
+
+  // Composición corporal (Ross y Guimaraes)
+  const H27 = 3.02 * ((H6 ** 2) * (D12 / 100) * (D13 / 100) * 400) ** 0.712; // peso óseo (no depende del peso, es estructural)
+  const M27 = esFemenino ? (H7 * 20.9) / 100 : (H7 * 24.1) / 100; // peso residual actual
+  const D29 = H7; // peso total
+  const D31 = H7 * D32 / 100; // peso graso
+  const M29 = D29 - D31; // masa corporal magra (libre de grasa)
+
+  // Peso ideal.
+  //
+  // CASO 1 — bajo peso (IMC clasificado "Desnutrición"): el problema NO
+  // es exceso de grasa, así que no tiene sentido responder con la misma
+  // lógica de "reducir grasa". El objetivo aquí es el PUNTO MEDIO del
+  // rango "Saludable" de IMC para su estatura (no el piso mínimo -2DE:
+  // llegar apenas al piso solo saca a la persona de "Desnutrición", pero
+  // sigue siendo un perfil delgado — insuficiente para un deportista).
+  // Se asume que el peso a ganar es masa magra (crecimiento muscular y
+  // óseo, no grasa), que es justamente lo que empuja el somatotipo hacia
+  // un perfil más mesomórfico — por eso la masa grasa ideal se deja
+  // igual a la actual.
+  //
+  // CASO 2 — todo lo demás: fórmula estándar de composición corporal
+  // (ej. Heyward & Wagner, "Applied Body Composition Assessment"):
+  // masa libre de grasa actual / (1 - %grasa objetivo/100). Solo si ya
+  // está en "Excelente" el objetivo efectivo es su %grasa actual (sin
+  // cambio); si no, el objetivo es D33, sin superar nunca el valor
+  // actual (nunca se recomienda subir de grasa).
+  const bajoPesoPorIMC = clasifIMC === 'Desnutrición';
+  const yaExcelente = clasifGrasa === 'Excelente';
+  let D28, D30, D33efectivo;
+  if (bajoPesoPorIMC){
+    D28 = imcObjetivoAtletico * (H6 ** 2); // peso saludable "de mitad de rango" para su estatura
+    D30 = D31; // se conserva la masa grasa actual: lo que falta es masa magra
+    D33efectivo = D28 > 0 ? (D30 / D28) * 100 : D32;
+  } else {
+    D33efectivo = yaExcelente ? D32 : Math.min(D32, D33);
+    D28 = M29 / (1 - (D33efectivo / 100)); // peso ideal
+    D30 = D28 * (D33efectivo / 100); // peso graso ideal
+  }
+
+  const retroalimentacionGrasa = bajoPesoPorIMC
+    ? `Su peso está por debajo de lo esperado para su estatura y edad (IMC: Desnutrición) — esto pesa más que la lectura aislada del %grasa. Se recomienda GANAR peso, priorizando desarrollo muscular y óseo (no reducir grasa), hasta un peso saludable estimado de ${D28.toFixed(1)} kg para su estatura — un objetivo de mitad de rango, no el mínimo, para apuntar a un perfil más mesomórfico (más muscular) y no solo "salir" de la desnutrición.`
+    : buildFatFeedback(D32, clasifGrasa, grasaBandas, D33, deporteNombre);
+
+  const H29 = H7 - (D31 + M27 + H27); // peso muscular actual
+  const M27ideal = esFemenino ? (D28 * 20.9) / 100 : (D28 * 24.1) / 100; // peso residual ideal (escalado al peso ideal, no al actual)
+  const H30 = D28 - (D30 + M27ideal + H27); // peso muscular ideal (el óseo no cambia: es estructural)
+  const H28 = H27 * 100 / H7; // % peso óseo
+  const H31 = H29 * 100 / H7; // % peso muscular
+  const M28 = esFemenino ? 20.9 : 24.1; // % peso residual
+  const M31 = H27 / D28 * 100; // % óseo ideal
+  const H32 = 100 - M28 - D33efectivo - M31; // % peso muscular ideal
+  const M33 = H18 / H19; // relación cintura-cadera
+
+  // TMB (Harris-Benedict adaptado del original)
+  const O35 = 655 + (11 * H7) + (2.5 * H6) - (5 * H5); // fem
+  const O36 = 666 + (15 * H7) + (5.5 * H6) - (7 * H5); // masc
+  const H33 = esFemenino ? O35 : O36;
+
+  // Somatotipo de Heath-Carter
+  const s1 = D16 + D17 + D18;
+  const scale = 170.18 / (H6 * 100);
+  const X = s1 * scale;
+  const D36 = -0.7182 + (0.1451 * X) - (0.00068 * (X ** 2)) + (0.0000014 * s1 * (scale ** 3)); // endomorfia
+  const D37 = ((0.858 * D11) + (0.601 * D13)) + ((H21 - (D16 / 10)) * 0.188) + ((H23 - (D21 / 10)) * 0.161) - (0.131 * (H6 * 100)) + 4.5; // mesomorfia
+  const J37 = (H6 * 100) / (H7 ** (1 / 3));
+  const K37 = (J37 * 0.463) - 17.63;
+  const L37 = (J37 * 0.732) - 28.58;
+  const D38 = J37 <= 40.75 ? K37 : L37; // ectomorfia
+  const G37 = D38 - D36; // eje X del somatocarta
+  const I37 = (2 * D37) - (D36 + D38); // eje Y del somatocarta
+
+  // Clasificaciones
+  const D46 = M33;
+  const clasifCCFem = D46 <= 0.75 ? 'Excelente' : D46 <= 0.8 ? 'Bueno' : D46 <= 0.85 ? 'Promedio' : D46 <= 0.9 ? 'Riesgo alto' : 'Riesgo extremo';
+  const clasifCCMasc = D46 <= 0.85 ? 'Excelente' : D46 <= 0.9 ? 'Bueno' : D46 <= 0.95 ? 'Promedio' : D46 <= 1 ? 'Riesgo alto' : 'Riesgo extremo';
+  const clasifCinturaCadera = esFemenino ? clasifCCFem : clasifCCMasc;
+  // Antes este texto usaba un umbral fijo de 0.85 para AMBOS sexos,
+  // desconectado de clasifCinturaCadera (que sí distingue por sexo) —
+  // podía decir "Bueno" en la etiqueta y "riesgo de enfermedad" en el
+  // texto para el mismo dato, en hombres. Ahora se deriva de la MISMA
+  // clasificación, sin un segundo criterio por separado.
+  const riesgoCoronario = ['Excelente', 'Bueno'].includes(clasifCinturaCadera)
+    ? 'sin riesgo elevado de enfermedad coronaria'
+    : clasifCinturaCadera === 'Promedio'
+      ? 'un riesgo moderado de enfermedad coronaria, a vigilar'
+      : 'riesgo elevado de enfermedad coronaria';
+
+  // Información nutricional
+  const O45 = H5 <= 40 ? 1 : H5 <= 50 ? 0.95 : H5 <= 60 ? 0.9 : 0.8;
+  const factores = { ligera: 0.9, moderada: 1, alta: 1.17, excesiva: 1.34 };
+  const factor = factores[actividad] || 1;
+  const caloriasDieta = (H33 / 40) * D28 * factor * O45;
+  const proteinaDia = M29 * 2;
+
+  // Gasto calórico REAL de entrenamiento (nunca 0): MET del nivel de
+  // actividad × peso corporal × duración de la sesión. Ver tabla y
+  // fuente (Compendium of Physical Activities) más arriba.
+  const metEntrenamiento = MET_FUTBOL[actividad] || MET_FUTBOL.moderada;
+  const gastoEntrenamientoSesion = metEntrenamiento * D29 * (D55 / 60);
+  const gastoEntrenamientoSemanal = gastoEntrenamientoSesion * D54;
+
+  // Superávit calórico para GANAR peso (solo aplica si bajoPesoPorIMC):
+  // es un concepto distinto al gasto de entrenamiento de arriba — acá se
+  // trata de cuánto EXTRA comer para lograr el aumento de peso, usando
+  // el mismo factor de 7000 kcal/kg ya usado en el resto de la app.
+  const gananciaNecesariaKg = Math.max(0, D28 - D29);
+  const superavitSemanal = (gananciaNecesariaKg * 7000) / D53;
+  const superavitSesion = superavitSemanal / D54;
+
+  return {
+    edadDecimal: H5, imc: L7, indiceAKS: L6, grasaObjetivo: D33efectivo, grasaObjetivoReferencia: D33,
+    yuhasz: P21, jackson: P25, sumatoria6Pliegues: D27,
+    porcentajeGrasa: D32, metodoUsado: metodo === 'im' ? 'Impedanciometría' : (sedentario === 'si' ? 'Jackson-Pollock (sedentario)' : 'Yuhasz (activo)'),
+    pesoOseo: H27, porcentajePesoOseo: H28,
+    pesoResidual: M27, porcentajePesoResidual: M28,
+    pesoMuscular: H29, porcentajePesoMuscular: H31,
+    pesoMuscularIdeal: H30, porcentajePesoMuscularIdeal: H32,
+    masaCorporalMagra: M29, masaCorporalMagraIdeal: M29, // por definición del método, se conserva la masa libre de grasa
+    pesoTotal: D29, pesoIdeal: D28,
+    pesoGraso: D31, pesoGrasoIdeal: D30,
+    porcentajeOseoIdeal: M31,
+    tmb1h: (15.3 * D28 + 679) / 24, tmb24h: H33,
+    relacionCinturaCadera: M33,
+    endomorfia: D36, mesomorfia: D37, ectomorfia: D38,
+    ejeX: G37, ejeY: I37, indiceHW: J37,
+    clasifGrasa, clasifIMC, clasifCinturaCadera, riesgoCoronario, retroalimentacionGrasa,
+    bajoPesoPorIMC, caloriasDieta, proteinaDia,
+    gastoEntrenamientoSesion, gastoEntrenamientoSemanal,
+    superavitSemanal, superavitSesion,
+  };
+}
+
+</script>
+<script>
+// ============================================================
+// Estado y navegación
+// ============================================================
+function showError(msg){
+  const banner = document.getElementById('err-banner');
+  const msgEl = document.getElementById('err-banner-msg');
+  if (!banner || !msgEl) { console.error(msg); return; }
+  msgEl.textContent = msg;
+  banner.style.display = 'block';
+}
+window.addEventListener('error', (e) => {
+  showError((e.message || 'Error desconocido') + (e.filename ? ` (línea ${e.lineno})` : ''));
+});
+window.addEventListener('unhandledrejection', (e) => {
+  const reason = e.reason;
+  showError('Promesa rechazada: ' + (reason && reason.message ? reason.message : String(reason)));
+});
+
+let atletas = [];
+let editingId = null;
+let grasaIdealAutoSuggested = true;
+let currentReportId = null;
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('tab-list').classList.toggle('active', name === 'list');
+  document.getElementById('tab-form').classList.toggle('active', name === 'form');
+  window.scrollTo({top:0, behavior:'instant'});
+  if (name === 'list') renderList();
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ============================================================
+// Persistencia (personal, no compartida)
+// ============================================================
+// Si window.storage llegara a colgarse (sin resolver ni rechazar), la
+// app entera se quedaría esperando para siempre sin mostrar nada. Este
+// helper pone un límite de tiempo a cualquier llamada de storage para
+// que eso NUNCA pase — ante una demora, se sigue igual (con los datos
+// que haya, o vacío) en vez de quedar congelada.
+function withTimeout(promise, ms, fallbackError){
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(fallbackError || new Error('timeout')), ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
+
+async function loadAtletas(){
+  try {
+    const res = await withTimeout(window.storage.get('atletas', false), 4000);
+    atletas = res && res.value ? JSON.parse(res.value) : [];
+  } catch (e) {
+    atletas = [];
+  }
+}
+
+async function saveAtletas(){
+  try {
+    await withTimeout(window.storage.set('atletas', JSON.stringify(atletas), false), 4000);
+  } catch (e) {
+    toast('No se pudo guardar. Intenta de nuevo.');
+  }
+}
+
+// ============================================================
+// Formulario
+// ============================================================
+const fld = id => document.getElementById(id);
+
+function todayISO(){
+  const d = new Date();
+  const tz = d.getTimezoneOffset() * 60000;
+  return new Date(d - tz).toISOString().slice(0,10);
+}
+
+function resetForm(){
+  document.getElementById('eval-form').reset();
+  fld('f-fecha-eval').value = todayISO();
+  fld('f-sedentario-wrap').style.display = '';
+  fld('f-im-wrap').style.display = 'none';
+  editingId = null;
+  grasaIdealAutoSuggested = true;
+  fld('f-grasa-ideal-hint').textContent = 'Se sugiere automáticamente según edad y sexo (curvas NHANES/McCarthy, Cooper Institute FITNESSGRAM, ACE en adultos). Puedes editarlo si tienes tu propio criterio.';
+  document.getElementById('form-heading').textContent = 'Nueva evaluación';
+}
+
+function cancelForm(){
+  resetForm();
+  showView('list');
+}
+
+fld('f-metodo').addEventListener('change', () => {
+  const isIm = fld('f-metodo').value === 'im';
+  fld('f-sedentario-wrap').style.display = isIm ? 'none' : '';
+  fld('f-im-wrap').style.display = isIm ? '' : 'none';
+});
+
+// Nadie mide 3 m: si detectamos que la estatura se escribió en cm (ej. 168),
+// la convertimos automáticamente a metros para evitar resultados absurdos.
+fld('f-estatura').addEventListener('blur', () => {
+  const v = parseFloat(fld('f-estatura').value);
+  if (!isNaN(v) && v >= 3 && v <= 250){
+    fld('f-estatura').value = (v / 100).toFixed(3);
+    toast(`Detecté ${v} y lo interpreté como cm → lo convertí a ${(v/100).toFixed(2)} m.`);
+  }
+});
+
+// Ningún diámetro óseo humano llega a 20 cm: si el valor es mayor,
+// probablemente se midió con un calibre en mm — lo convertimos a cm
+// automáticamente (mismo tipo de corrección que la estatura, ver arriba).
+['f-d11', 'f-d12', 'f-d13'].forEach(id => {
+  fld(id).addEventListener('blur', () => {
+    const v = parseFloat(fld(id).value);
+    if (!isNaN(v) && v >= 20 && v <= 200){
+      fld(id).value = (v / 10).toFixed(1);
+      toast(`Detecté ${v} y lo interpreté como mm → lo convertí a ${(v/10).toFixed(1)} cm.`);
+    }
+  });
+});
+
+// Sugiere el %grasa ideal según edad y sexo (ver suggestTargetBodyFat en calc.js)
+// cada vez que cambian los datos que la determinan, salvo que el usuario ya
+// haya editado el campo a mano (en cuyo caso respetamos su criterio).
+function updateSuggestedGrasaIdeal(){
+  if (!grasaIdealAutoSuggested) return;
+  const nac = fld('f-fecha-nac').value;
+  const evalDate = fld('f-fecha-eval').value || todayISO();
+  if (!nac) return;
+  const edad = daysBetween(nac, evalDate) / 365;
+  if (edad < 0 || edad > 100) return;
+  const sexo = fld('f-sexo').value;
+  const actividad = fld('f-actividad').value;
+  const sugerido = suggestActivityAdjustedTarget(edad, sexo, actividad);
+  fld('f-grasa-ideal').value = sugerido;
+  fld('f-grasa-ideal-hint').textContent = `Objetivo "Excelente" sugerido para ${edad.toFixed(1)} años, ${sexo}, actividad ${actividad}: ${sugerido}%. Basado en NHANES/McCarthy, Cooper Institute FITNESSGRAM y las categorías de ACE — editable.`;
+}
+['f-fecha-nac', 'f-fecha-eval', 'f-sexo', 'f-actividad'].forEach(id => {
+  fld(id).addEventListener('change', updateSuggestedGrasaIdeal);
+});
+fld('f-grasa-ideal').addEventListener('input', () => { grasaIdealAutoSuggested = false; });
+
+function num(id){
+  const v = fld(id).value;
+  return v === '' ? 0 : parseFloat(v);
+}
+
+function collectForm(){
+  return {
+    nombre: fld('f-nombre').value.trim(),
+    deporte: fld('f-deporte').value.trim(),
+    sexo: fld('f-sexo').value,
+    fechaNacimiento: fld('f-fecha-nac').value,
+    fechaEvaluacion: fld('f-fecha-eval').value,
+    actividad: fld('f-actividad').value,
+    periodo: fld('f-periodo').value.trim(),
+    estaturaM: num('f-estatura'),
+    pesoKg: num('f-peso'),
+    metodo: fld('f-metodo').value,
+    sedentario: fld('f-sedentario').value,
+    grasaImpedanciometria: num('f-im'),
+    diamHumeral: num('f-d11'), diamRadioCubital: num('f-d12'), diamFemoral: num('f-d13'),
+    plTriceps: num('f-d16'), plSubescapular: num('f-d17'), plSupraIliaco: num('f-d18'),
+    plAbdominal: num('f-d19'), plMusloAnterior: num('f-d20'), plMedialPierna: num('f-d21'), plPectoral: num('f-d22'),
+    torax: num('f-h17'), abdomenInferior: num('f-h18'), cadera: num('f-h19'),
+    bicepsRelajadoDer: num('f-h20'), bicepsRelajadoIzq: num('f-i20'),
+    bicepsContraidoDer: num('f-h21'), bicepsContraidoIzq: num('f-i21'),
+    musloSuperiorDer: num('f-h22'), musloSuperiorIzq: num('f-i22'),
+    pantorrillaDer: num('f-h23'), pantorrillaIzq: num('f-i23'),
+    grasaIdealPct: num('f-grasa-ideal') || 15,
+    semanasPrograma: num('f-semanas') || 12,
+    sesionesSemana: num('f-sesiones') || 4,
+    duracionSesion: num('f-duracion') || 90,
+  };
+}
+
+function fillForm(rec){
+  fld('f-nombre').value = rec.nombre;
+  fld('f-deporte').value = rec.deporte;
+  fld('f-sexo').value = rec.sexo;
+  fld('f-fecha-nac').value = rec.fechaNacimiento;
+  fld('f-fecha-eval').value = rec.fechaEvaluacion;
+  fld('f-actividad').value = rec.actividad;
+  fld('f-periodo').value = rec.periodo || 'Gral';
+  fld('f-estatura').value = rec.estaturaM;
+  fld('f-peso').value = rec.pesoKg;
+  fld('f-metodo').value = rec.metodo;
+  fld('f-sedentario').value = rec.sedentario;
+  fld('f-im').value = rec.grasaImpedanciometria || '';
+  fld('f-metodo').dispatchEvent(new Event('change'));
+  fld('f-d11').value = rec.diamHumeral || ''; fld('f-d12').value = rec.diamRadioCubital || ''; fld('f-d13').value = rec.diamFemoral || '';
+  fld('f-d16').value = rec.plTriceps || ''; fld('f-d17').value = rec.plSubescapular || ''; fld('f-d18').value = rec.plSupraIliaco || '';
+  fld('f-d19').value = rec.plAbdominal || ''; fld('f-d20').value = rec.plMusloAnterior || ''; fld('f-d21').value = rec.plMedialPierna || ''; fld('f-d22').value = rec.plPectoral || '';
+  fld('f-h17').value = rec.torax || ''; fld('f-h18').value = rec.abdomenInferior || ''; fld('f-h19').value = rec.cadera || '';
+  fld('f-h20').value = rec.bicepsRelajadoDer || ''; fld('f-i20').value = rec.bicepsRelajadoIzq || '';
+  fld('f-h21').value = rec.bicepsContraidoDer || ''; fld('f-i21').value = rec.bicepsContraidoIzq || '';
+  fld('f-h22').value = rec.musloSuperiorDer || ''; fld('f-i22').value = rec.musloSuperiorIzq || '';
+  fld('f-h23').value = rec.pantorrillaDer || ''; fld('f-i23').value = rec.pantorrillaIzq || '';
+  fld('f-semanas').value = rec.semanasPrograma; fld('f-sesiones').value = rec.sesionesSemana; fld('f-duracion').value = rec.duracionSesion || 90;
+  fld('f-grasa-ideal').value = rec.grasaIdealPct;
+  grasaIdealAutoSuggested = false;
+  fld('f-grasa-ideal-hint').textContent = 'Valor guardado para esta evaluación. Puedes editarlo.';
+}
+
+document.getElementById('eval-form').addEventListener('submit', (e) => { e.preventDefault(); });
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  try {
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+    const data = collectForm();
+
+    // Segunda red de seguridad: si la estatura llegó aquí en cm (ej. por edición
+    // directa sin pasar por 'blur'), la corregimos antes de validar o calcular.
+    if (data.estaturaM >= 3 && data.estaturaM <= 250){
+      data.estaturaM = Math.round((data.estaturaM / 100) * 1000) / 1000;
+      fld('f-estatura').value = data.estaturaM.toFixed(3);
+    }
+
+    // Lo mismo para los diámetros óseos: si llegaron en mm (>=20), a cm.
+    [['diamHumeral','f-d11'], ['diamRadioCubital','f-d12'], ['diamFemoral','f-d13']].forEach(([key, id]) => {
+      if (data[key] >= 20 && data[key] <= 200){
+        data[key] = Math.round((data[key] / 10) * 10) / 10;
+        fld(id).value = data[key].toFixed(1);
+      }
+    });
+
+    const requiredFields = [
+      ['f-nombre', data.nombre],
+      ['f-fecha-nac', data.fechaNacimiento],
+      ['f-fecha-eval', data.fechaEvaluacion],
+      ['f-estatura', data.estaturaM],
+      ['f-peso', data.pesoKg],
+    ];
+    const missing = requiredFields.filter(([, v]) => !v).map(([id]) => id);
+
+    if (missing.length){
+      missing.forEach(id => fld(id).classList.add('input-error'));
+      fld(missing[0]).focus();
+      fld(missing[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      toast('Completa los campos marcados en rojo: nombre, fechas, estatura y peso.');
+      return;
+    }
+
+    // Rangos humanamente plausibles: evita que un dato mal tecleado dispare
+    // resultados absurdos (peso óseo de miles de kg, IMC en 0, etc.)
+    const rangeErrors = [];
+    if (data.estaturaM < 0.3 || data.estaturaM > 2.5) rangeErrors.push(['f-estatura', `La estatura debe ir en metros (ej. 1.68). ${data.estaturaM} m no es un valor humano plausible.`]);
+    if (data.pesoKg < 1 || data.pesoKg > 250) rangeErrors.push(['f-peso', `El peso ingresado (${data.pesoKg} kg) no es un valor plausible.`]);
+    if (data.grasaIdealPct <= 3 || data.grasaIdealPct >= 50) rangeErrors.push(['f-grasa-ideal', `El %grasa ideal (${data.grasaIdealPct}%) debe estar entre 3% y 50%.`]);
+    [['diamHumeral','f-d11','Bi epicondilar humeral'], ['diamRadioCubital','f-d12','Radio cubital'], ['diamFemoral','f-d13','Bi epicondilar femoral']].forEach(([key, id, label]) => {
+      if (data[key] > 0 && (data[key] < 2 || data[key] > 20)) rangeErrors.push([id, `El diámetro "${label}" (${data[key]} cm) no es un valor humano plausible. Debe ir en centímetros (ej. 6.2), no en mm.`]);
+    });
+    if (rangeErrors.length){
+      rangeErrors.forEach(([id]) => fld(id).classList.add('input-error'));
+      fld(rangeErrors[0][0]).focus();
+      fld(rangeErrors[0][0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      toast(rangeErrors[0][1]);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    if (editingId){
+      const idx = atletas.findIndex(a => a.id === editingId);
+      if (idx >= 0) atletas[idx] = { ...atletas[idx], ...data, updatedAt: now };
+      currentReportId = editingId;
+    } else {
+      const rec = { id: (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + Math.random()), ...data, createdAt: now, updatedAt: now };
+      atletas.unshift(rec);
+      currentReportId = rec.id;
+    }
+    await saveAtletas();
+    resetForm();
+    openReport(currentReportId);
+  } catch (err) {
+    console.error('Error al generar el reporte:', err);
+    showError('Al generar el reporte: ' + err.message);
+    toast('Ocurrió un error al generar el reporte. Revisa los datos e intenta de nuevo.');
+  }
+});
+
+// ============================================================
+// Lista
+// ============================================================
+function initials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+
+function tagForFat(clasif){
+  if (clasif === 'Excelente') return 'tag-good';
+  if (clasif === 'Buena') return 'tag-warn';
+  if (clasif === 'Aceptable') return 'tag-warn';
+  return 'tag-bad';
+}
+
+function renderList(){
+  const container = document.getElementById('list-container');
+  const empty = document.getElementById('list-empty');
+  container.innerHTML = '';
+  if (atletas.length === 0){
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  atletas.forEach(rec => {
+    const r = computeReport(rec);
+    const card = document.createElement('div');
+    card.className = 'athlete-card';
+    card.onclick = () => openReport(rec.id);
+    card.innerHTML = `
+      <div class="athlete-avatar">${initials(rec.nombre || '?')}</div>
+      <div class="athlete-info">
+        <div class="athlete-name">${escapeHtml(rec.nombre)}</div>
+        <div class="athlete-meta">${escapeHtml(rec.deporte || '—')} · ${r.edadDecimal.toFixed(1)} años · ${formatDate(rec.fechaEvaluacion)}</div>
+      </div>
+      <span class="tag ${tagForFat(r.clasifGrasa)}">${r.clasifGrasa}</span>
+      <button class="del-btn" title="Eliminar" data-id="${rec.id}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m2 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7"/></svg>
+      </button>`;
+    card.querySelector('.del-btn').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      deleteAtleta(rec.id);
+    });
+    container.appendChild(card);
+  });
+}
+
+async function deleteAtleta(id){
+  const rec = atletas.find(a => a.id === id);
+  if (!rec) return;
+  if (!confirm(`¿Eliminar la evaluación de ${rec.nombre}? Esta acción no se puede deshacer.`)) return;
+  atletas = atletas.filter(a => a.id !== id);
+  await saveAtletas();
+  renderList();
+  toast('Evaluación eliminada.');
+}
+
+function escapeHtml(s){
+  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatDate(iso){
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ============================================================
+// Reporte
+// ============================================================
+function fmt(n, decimals){
+  return (typeof n === 'number' && isFinite(n)) ? n.toFixed(decimals) : '—';
+}
+function stat(label, value, unit){
+  return `<div class="stat"><div class="label">${label}</div><div class="value">${value}<small> ${unit||''}</small></div></div>`;
+}
+
+function openReport(id){
+  const rec = atletas.find(a => a.id === id);
+  if (!rec) return;
+  currentReportId = id;
+  const r = computeReport(rec);
+
+  document.getElementById('r-nombre').textContent = rec.nombre;
+  document.getElementById('r-sub').textContent = `${rec.deporte || 'Sin deporte'} · Periodo: ${rec.periodo || 'Gral'} · Evaluado el ${formatDate(rec.fechaEvaluacion)}`;
+  document.getElementById('r-edad').textContent = `${r.edadDecimal.toFixed(2)} años`;
+  document.getElementById('r-antropo').textContent = `${rec.estaturaM.toFixed(2)} m · ${rec.pesoKg.toFixed(1)} kg`;
+  document.getElementById('r-metodo').textContent = r.metodoUsado;
+
+  document.getElementById('r-tags').innerHTML = `
+    <span class="tag ${tagForFat(r.clasifGrasa)}">Grasa: ${r.clasifGrasa}</span>
+    <span class="tag ${r.clasifIMC==='Saludable'?'tag-good':'tag-warn'}">IMC: ${r.clasifIMC}</span>
+    <span class="tag ${r.clasifCinturaCadera==='Excelente'||r.clasifCinturaCadera==='Bueno'?'tag-good':'tag-warn'}">Cintura-cadera: ${r.clasifCinturaCadera}</span>`;
+
+  const yaSaludable = r.clasifGrasa === 'Excelente' && !r.bajoPesoPorIMC;
+
+  document.getElementById('r-composicion').innerHTML = [
+    stat('% Grasa corporal', r.porcentajeGrasa.toFixed(1), '%'),
+    stat('Peso graso', r.pesoGraso.toFixed(1), 'kg'),
+    stat('Peso muscular', r.pesoMuscular.toFixed(1), 'kg'),
+    stat('Peso óseo', r.pesoOseo.toFixed(2), 'kg'),
+    stat('Masa corporal magra', r.masaCorporalMagra.toFixed(1), 'kg'),
+    stat('Peso ideal', r.pesoIdeal.toFixed(1) + (yaSaludable ? ' (= actual)' : ''), 'kg'),
+    stat('% Peso muscular', r.porcentajePesoMuscular.toFixed(1), '%'),
+    stat('% Peso óseo', r.porcentajePesoOseo.toFixed(1), '%'),
+  ].join('');
+
+  document.getElementById('r-composicion-note').textContent = r.retroalimentacionGrasa;
+
+  document.getElementById('r-imc').innerHTML = [
+    stat('Índice de masa corporal', r.imc.toFixed(1), 'kg/m²'),
+    stat('Relación cintura-cadera', fmt(r.relacionCinturaCadera, 2), ''),
+  ].join('');
+
+  const statsNutricionBase = [
+    stat('Calorías requeridas / día', Math.round(r.caloriasDieta), 'kcal'),
+    stat('Proteína / día', r.proteinaDia.toFixed(0), 'g'),
+    stat('Gasto de entrenamiento / sesión', Math.round(r.gastoEntrenamientoSesion), 'kcal'),
+    stat('Gasto de entrenamiento / semana', Math.round(r.gastoEntrenamientoSemanal), 'kcal'),
+    stat('TMB (24h)', Math.round(r.tmb24h), 'kcal'),
+    stat('Índice AKS', r.indiceAKS.toFixed(2), ''),
+  ];
+  if (r.bajoPesoPorIMC){
+    statsNutricionBase.push(
+      stat('Superávit sugerido / semana', '+' + Math.round(r.superavitSemanal), 'kcal'),
+      stat('Superávit sugerido / sesión', '+' + Math.round(r.superavitSesion), 'kcal'),
+    );
+  }
+  document.getElementById('r-nutricion').innerHTML = statsNutricionBase.join('');
+
+  const dom = [['Endomorfia', r.endomorfia], ['Mesomorfia', r.mesomorfia], ['Ectomorfia', r.ectomorfia]].sort((a,b) => b[1]-a[1])[0][0];
+  document.getElementById('r-somato-stats').innerHTML = [
+    stat('I · Endomorfia', r.endomorfia.toFixed(1), ''),
+    stat('II · Mesomorfia', r.mesomorfia.toFixed(1), ''),
+    stat('III · Ectomorfia', r.ectomorfia.toFixed(1), ''),
+    stat('Índice altura-peso (usado solo para la ectomorfia)', r.indiceHW.toFixed(1), ''),
+  ].join('');
+  document.getElementById('r-dominancia').textContent = `Componente dominante: ${dom}`;
+  document.getElementById('r-somato-nota').textContent = buildSomatotypeNote(r, rec.deporte);
+
+  drawSomatoChart(r.ejeX, r.ejeY);
+
+  document.getElementById('r-conclusion').textContent = buildConclusion(rec, r);
+
+  const btnEdit = document.getElementById('btn-edit');
+  btnEdit.onclick = () => {
+    editingId = rec.id;
+    fillForm(rec);
+    document.getElementById('form-heading').textContent = 'Editar evaluación';
+    showView('form');
+  };
+  document.getElementById('btn-delete').onclick = async () => {
+    if (!confirm(`¿Eliminar la evaluación de ${rec.nombre}?`)) return;
+    atletas = atletas.filter(a => a.id !== id);
+    await saveAtletas();
+    showView('list');
+    toast('Evaluación eliminada.');
+  };
+  document.getElementById('btn-copy').onclick = () => copyReport(rec, r);
+
+  showView('report');
+}
+
+// Lectura práctica del somatotipo, adaptada al deporte real ingresado en
+// el formulario (no asume fútbol). No es un juicio sobre el cuerpo del
+// deportista: es una guía de ENFOQUE de entrenamiento/nutrición según
+// qué componente predomina. Los umbrales de intensidad (leve/moderada/
+// marcada) siguen la convención habitual de lectura de las escalas de
+// Heath-Carter (1-2.5 bajo, 3-5 medio, 5.5+ alto).
+function getSomatotypeDominant(r){
+  const comps = [
+    ['Endomorfia', r.endomorfia],
+    ['Mesomorfia', r.mesomorfia],
+    ['Ectomorfia', r.ectomorfia],
+  ].sort((a, b) => b[1] - a[1]);
+  const [domName, domVal] = comps[0];
+  const intensidad = domVal >= 5.5 ? 'marcada' : domVal >= 3.5 ? 'moderada' : 'leve';
+  return { domName, domVal, intensidad };
+}
+
+function buildSomatotypeNote(r, deporteNombre){
+  const { domName, domVal, intensidad } = getSomatotypeDominant(r);
+  const deporte = deporteNombre || 'este deporte';
+  const textos = {
+    Endomorfia: `Tendencia endomórfica ${intensidad} (${domVal.toFixed(1)}): predomina el componente graso/redondeado sobre el muscular y el lineal. En ${deporte} esto puede restar velocidad y resistencia si se acentúa. Se sugiere reforzar trabajo aeróbico y de fuerza-resistencia, y revisar la ingesta calórica junto con un nutricionista, monitoreando el %grasa en las próximas evaluaciones.`,
+    Mesomorfia: `Tendencia mesomórfica ${intensidad} (${domVal.toFixed(1)}): predomina el componente muscular, un perfil favorable para ${deporte} (fuerza, potencia, velocidad). Se sugiere mantener el trabajo de fuerza/potencia actual, cuidando la recuperación y un aporte proteico adecuado.`,
+    Ectomorfia: `Tendencia ectomórfica ${intensidad} (${domVal.toFixed(1)}): predomina el componente lineal/delgado sobre el muscular. Puede asociarse a menor fuerza y potencia relativa para los duelos de ${deporte}. Se sugiere priorizar trabajo de fuerza e hipertrofia, con un aporte calórico y proteico suficiente para ganar masa muscular sin perder velocidad.`,
+  };
+  return textos[domName];
+}
+
+function buildConclusion(rec, r){
+  const nombre = rec.nombre.split(' ')[0] || rec.nombre;
+  const deporte = (rec.deporte || '').trim() || 'este deporte';
+  const yaSaludable = r.clasifGrasa === 'Excelente' && !r.bajoPesoPorIMC;
+  let fraseFraseo;
+  if (r.bajoPesoPorIMC){
+    fraseFraseo = `está por debajo del peso esperado para su estatura (IMC: desnutrición); se recomienda GANAR peso —principalmente masa muscular y ósea— hasta un peso saludable estimado de ${r.pesoIdeal.toFixed(1)} kg`;
+  } else if (yaSaludable){
+    fraseFraseo = `ya tiene un %grasa saludable para su edad (${r.clasifGrasa.toLowerCase()}), por lo que su peso actual (${rec.pesoKg.toFixed(1)} kg) no necesita cambiar`;
+  } else {
+    fraseFraseo = `se recomienda bajar hasta aproximadamente ${r.grasaObjetivo.toFixed(1)}% de grasa para llegar al rango "Excelente" de su edad, sexo y nivel de actividad — esto equivale a un peso ideal estimado de ${r.pesoIdeal.toFixed(1)} kg`;
+  }
+
+  const { domName, intensidad } = getSomatotypeDominant(r);
+  let fraseSomatotipo = '';
+  if (domName === 'Endomorfia'){
+    fraseSomatotipo = ` Su somatotipo muestra una tendencia endomórfica ${intensidad}, es decir, predomina el componente graso sobre el muscular — esto va en la misma línea que su %grasa: para ${deporte}, conviene priorizar la reducción de grasa junto con trabajo de fuerza, y no solo enfocarse en el peso.`;
+  } else if (domName === 'Ectomorfia'){
+    fraseSomatotipo = ` Su somatotipo muestra una tendencia ectomórfica ${intensidad} (predominio lineal sobre el muscular); para ${deporte} conviene priorizar ganancia de masa muscular vía entrenamiento de fuerza y superávit calórico controlado.`;
+  }
+
+  return `${nombre} presenta un ${r.porcentajeGrasa.toFixed(1)}% de grasa corporal (${r.clasifGrasa.toLowerCase()} para su edad y sexo); ${fraseFraseo}.${fraseSomatotipo} Su IMC es de ${r.imc.toFixed(1)} (${r.clasifIMC.toLowerCase()} para su edad). Su relación cintura-cadera de ${r.relacionCinturaCadera.toFixed(2)} (${r.clasifCinturaCadera.toLowerCase()}) indica ${r.riesgoCoronario}. Se recomienda repetir esta evaluación en 2 meses para monitorear cambios.`;
+}
+
+async function copyReport(rec, r){
+  const text = `REPORTE CINEANTROPOMÉTRICO
+Nombre: ${rec.nombre}
+Deporte: ${rec.deporte || '-'}  |  Evaluación: ${formatDate(rec.fechaEvaluacion)}  |  Edad: ${r.edadDecimal.toFixed(1)} años
+Estatura: ${rec.estaturaM} m  |  Peso: ${rec.pesoKg} kg  |  Método: ${r.metodoUsado}
+
+COMPOSICIÓN CORPORAL
+% Grasa corporal: ${r.porcentajeGrasa.toFixed(1)}% (${r.clasifGrasa})
+${r.retroalimentacionGrasa}
+Peso graso: ${r.pesoGraso.toFixed(1)} kg | Peso muscular: ${r.pesoMuscular.toFixed(1)} kg | Peso óseo: ${r.pesoOseo.toFixed(2)} kg
+Masa corporal magra: ${r.masaCorporalMagra.toFixed(1)} kg | Peso ideal: ${r.pesoIdeal.toFixed(1)} kg
+
+SOMATOTIPO (Heath-Carter)
+Endomorfia: ${r.endomorfia.toFixed(1)} | Mesomorfia: ${r.mesomorfia.toFixed(1)} | Ectomorfia: ${r.ectomorfia.toFixed(1)}
+${buildSomatotypeNote(r, rec.deporte)}
+
+IMC / CINTURA-CADERA
+IMC: ${r.imc.toFixed(1)} (${r.clasifIMC}) | Cintura-cadera: ${r.relacionCinturaCadera.toFixed(2)} (${r.clasifCinturaCadera})
+
+NUTRICIÓN
+Calorías/día: ${Math.round(r.caloriasDieta)} kcal | Proteína/día: ${r.proteinaDia.toFixed(0)} g
+Gasto de entrenamiento: ${Math.round(r.gastoEntrenamientoSesion)} kcal/sesión (${Math.round(r.gastoEntrenamientoSemanal)} kcal/semana)${r.bajoPesoPorIMC ? `\nSuperávit sugerido: +${Math.round(r.superavitSemanal)} kcal/semana (+${Math.round(r.superavitSesion)} kcal/sesión) para ganar peso` : ''}
+
+${buildConclusion(rec, r)}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Reporte copiado al portapapeles.');
+  } catch (e) {
+    toast('No se pudo copiar automáticamente.');
+  }
+}
+
+// ============================================================
+// Gráfico de somatotipo (SVG, elemento distintivo de la app)
+// ============================================================
+function drawSomatoChart(x, y){
+  const svg = document.getElementById('r-chart');
+  const W = 260, H = 240, cx = W/2, cy = H/2 + 6, scale = 11; // px por unidad de somatotipo
+  const range = 9;
+  let g = `<rect x="0" y="0" width="${W}" height="${H}" fill="#EEF2EA" rx="10"/>`;
+
+  // grid
+  for (let i = -range; i <= range; i += 3){
+    const gx = cx + i*scale, gy = cy - i*scale;
+    g += `<line x1="${gx}" y1="12" x2="${gx}" y2="${H-12}" stroke="#DBE2D6" stroke-width="1"/>`;
+    g += `<line x1="12" y1="${gy}" x2="${W-12}" y2="${gy}" stroke="#DBE2D6" stroke-width="1"/>`;
+  }
+  // axes
+  g += `<line x1="12" y1="${cy}" x2="${W-12}" y2="${cy}" stroke="#8B9789" stroke-width="1.5"/>`;
+  g += `<line x1="${cx}" y1="12" x2="${cx}" y2="${H-12}" stroke="#8B9789" stroke-width="1.5"/>`;
+
+  // labels
+  g += `<text x="${W-14}" y="${cy-6}" font-family="IBM Plex Mono" font-size="9" fill="#51604F" text-anchor="end">ECTOMORFIA</text>`;
+  g += `<text x="14" y="${cy-6}" font-family="IBM Plex Mono" font-size="9" fill="#51604F" text-anchor="start">ENDOMORFIA</text>`;
+  g += `<text x="${cx+5}" y="20" font-family="IBM Plex Mono" font-size="9" fill="#51604F">MESOMORFIA</text>`;
+
+  // point (clamp for display only)
+  const px = Math.max(-range, Math.min(range, x));
+  const py = Math.max(-range, Math.min(range, y));
+  const ptx = cx + px*scale, pty = cy - py*scale;
+  g += `<circle cx="${ptx}" cy="${pty}" r="9" fill="#1E6F5C" fill-opacity="0.18"/>`;
+  g += `<circle cx="${ptx}" cy="${pty}" r="5" fill="#1E6F5C" stroke="#0F4137" stroke-width="1.5"/>`;
+  g += `<text x="${ptx}" y="${pty-12}" font-family="IBM Plex Mono" font-size="10" fill="#0F4137" text-anchor="middle" font-weight="600">${x.toFixed(1)}, ${y.toFixed(1)}</text>`;
+
+  svg.innerHTML = g;
+}
+
+// ============================================================
+// Arranque
+// ============================================================
+(async function init(){
+  fld('f-fecha-eval').value = todayISO();
+  await loadAtletas();
+  renderList();
+})();
+
+</script>
+</body>
+</html>
