@@ -20,4 +20,8 @@ python3 -m http.server 8000
 
 Sitio estático en Vercel: se publica el contenido de la raíz del repositorio tal cual.
 
-<!-- deploy trigger -->
+## Almacenamiento
+
+Las evaluaciones se guardan en el navegador del profesional que las carga
+(`localStorage`), no en un servidor. No se comparten entre dispositivos ni
+entre navegadores.
