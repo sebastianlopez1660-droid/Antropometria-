@@ -3,25 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0D0D0D">
 <title>Cineantropometría · Reporte de composición corporal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F4F6F1;
-    --surface:#FFFFFF;
-    --surface-2:#EEF2EA;
-    --ink:#182620;
-    --ink-soft:#51604F;
-    --ink-faint:#8B9789;
-    --line:#DBE2D6;
-    --accent:#1E6F5C;
-    --accent-ink:#0F4137;
-    --accent-soft:#E3F0EA;
-    --amber:#C1791F;
-    --amber-soft:#FAEFDD;
-    --danger:#AC4B3F;
-    --danger-soft:#F7E7E3;
+    /* Paleta de la marca Sebastián López (#8B0D14 · #FFFFFF · #0D0D0D), con los mismos
+       tonos de superficie que ScoutLab y la Biblioteca de ejercicios. */
+    --bg:#0D0D0D;
+    --surface:#161616;
+    --surface-2:#1C1C1C;
+    --surface-3:#242424;
+    --ink:#F5F5F5;
+    --ink-soft:#A8A3A3;
+    --ink-faint:#6B6666;
+    --line:#2C2C2C;
+    --accent:#8B0D14;          /* rojo de marca, rellenos */
+    --accent-mid:#B0362F;
+    --accent-dark:#6D0A10;
+    --accent-ink:#F0A8A0;      /* rojo legible para texto sobre fondo oscuro */
+    --accent-soft:rgba(139,13,20,.18);
+    --accent-line:rgba(139,13,20,.5);
+    /* Colores de estado de las clasificaciones (Excelente / Aceptable / Mala): se separan
+       del rojo de marca para que "Excelente" no se lea como una alerta. */
+    --good:#3FB88A;
+    --good-soft:rgba(63,184,138,.14);
+    --amber:#C99A4B;
+    --amber-soft:rgba(201,154,75,.14);
+    --danger:#E0435C;
+    --danger-soft:rgba(224,67,92,.14);
     --radius:14px;
     --font-display:'Space Grotesk',sans-serif;
     --font-body:'IBM Plex Sans',sans-serif;
@@ -35,37 +46,40 @@
     font-family:var(--font-body);
     -webkit-font-smoothing:antialiased;
     min-height:100vh;
+    color-scheme:dark;
+    accent-color:var(--accent);
   }
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
   }
 
   /* ---------- App bar (saludo con el logotipo en un círculo, como en ScoutLab) ----------
-     Su alto queda fijo en 67px (círculo de 40 + 12 arriba y abajo + 3 de borde): las
-     pestañas se pegan justo debajo con top:67px. */
+     Su alto queda fijo en 65px (círculo de 40 + 12 arriba y abajo + 1 de borde): las
+     pestañas se pegan justo debajo con top:65px. */
   .appbar{
     position:sticky; top:0; z-index:20;
-    background:linear-gradient(135deg, var(--ink) 0%, var(--accent-ink) 100%);
-    color:#EAF1EA;
+    background-color:var(--bg);
+    background-image:linear-gradient(180deg, rgba(139,13,20,.55) 0%, rgba(139,13,20,.16) 60%, var(--bg) 100%);
+    color:var(--ink);
     padding:12px max(16px, calc((100% - 640px) / 2 + 14px));
     display:flex; align-items:center; gap:12px;
-    border-bottom:3px solid var(--accent);
+    border-bottom:1px solid var(--accent);
   }
   .avatar{
     width:40px; height:40px; border-radius:50%; flex:none;
     display:inline-flex; align-items:center; justify-content:center;
-    background:var(--ink); border:2px solid var(--accent);
+    background:var(--surface-2); border:2px solid var(--accent-mid);
   }
   .avatar svg{ display:block; }
   .appbar-text{ display:flex; flex-direction:column; line-height:1.2; min-width:0; }
   .appbar-title{ font-family:var(--font-body); font-weight:700; font-size:16px; white-space:nowrap; }
-  .appbar-sub{ font-size:12px; color:#B9CBC0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .appbar-sub{ font-size:12px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   /* ---------- Tabs (píldoras: la activa va rellena) ---------- */
   .tabs{
     display:flex; gap:6px; background:var(--bg);
     border-bottom:1px solid var(--line);
-    position:sticky; top:67px; z-index:19;
+    position:sticky; top:65px; z-index:19;
     /* alineadas con el contenido, que mide como máximo 640px */
     padding:10px max(14px, calc((100% - 640px) / 2 + 14px));
   }
@@ -117,7 +131,7 @@
     border-radius:10px; padding:12px 18px; border:1.5px solid transparent; text-align:center;
   }
   .btn-primary{ background:var(--accent); color:#fff; width:100%; }
-  .btn-primary:active{ background:var(--accent-ink); }
+  .btn-primary:active{ background:var(--accent-dark); }
   .btn-ghost{ background:transparent; border-color:var(--line); color:var(--ink-soft); }
   .btn-danger{ background:var(--danger-soft); color:var(--danger); border-color:transparent; }
   .btn-row{ display:flex; gap:10px; margin-top:6px; }
@@ -136,8 +150,8 @@
   }
   .athlete-card:active{ background:var(--surface-2); }
   .athlete-avatar{
-    width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, var(--accent), var(--accent-ink)); color:#fff;
-    box-shadow:0 0 0 2px var(--accent-soft);
+    width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, var(--accent-mid), var(--accent-dark)); color:#fff;
+    box-shadow:0 0 0 2px var(--accent-line);
     display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:15px; flex:none;
   }
   .athlete-info{ flex:1; min-width:0; }
@@ -147,7 +161,7 @@
     font-family:var(--font-mono); font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px;
     white-space:nowrap;
   }
-  .tag-good{ background:var(--accent-soft); color:var(--accent-ink); }
+  .tag-good{ background:var(--good-soft); color:var(--good); }
   .tag-warn{ background:var(--amber-soft); color:var(--amber); }
   .tag-bad{ background:var(--danger-soft); color:var(--danger); }
   .del-btn{ background:none; border:none; color:var(--ink-faint); padding:6px; cursor:pointer; flex:none; }
@@ -158,8 +172,10 @@
   .report-sub{ font-size:12.5px; color:var(--ink-faint); margin-top:3px; }
 
   /* Tarjeta destacada del reporte (equivale a la tarjeta resaltada del diseño):
-     degradado del verde de la app, nombre a la izquierda y % de grasa a la derecha. */
-  .report-hero{ background:linear-gradient(110deg, var(--accent) 0%, var(--accent-ink) 100%); color:#fff; border:none; }
+     degradado rojo de marca, nombre a la izquierda y % de grasa a la derecha. */
+  .report-hero{ background:linear-gradient(110deg, var(--accent-mid) 0%, var(--accent) 55%, var(--accent-dark) 100%); color:#fff; border:none; }
+  /* Sobre el rojo, las etiquetas de estado van sobre negro para que su color se siga leyendo. */
+  .report-hero .tag{ background:var(--bg); }
   .report-hero .report-sub{ color:rgba(255,255,255,.8); }
   .report-hero .kv{ border-bottom-color:rgba(255,255,255,.25); }
   .report-hero .kv .k{ color:rgba(255,255,255,.75); }
@@ -191,7 +207,7 @@
 
   .toast{
     position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(8px);
-    background:var(--ink); color:#fff; padding:10px 18px; border-radius:30px; font-size:13px;
+    background:var(--surface-3); color:var(--ink); border:1px solid var(--line); padding:10px 18px; border-radius:30px; font-size:13px;
     opacity:0; pointer-events:none; transition:opacity 0.2s ease, transform 0.2s ease; z-index:50;
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -397,10 +413,10 @@
 </main>
 
 <div class="toast" id="toast"></div>
-<div id="err-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:999; background:#AC4B3F; color:#fff; padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.5; word-break:break-word;">
+<div id="err-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:999; background:#8B0D14; color:#fff; padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.5; word-break:break-word;">
   <strong>⚠ Se produjo un error en la app:</strong>
   <div id="err-banner-msg" style="margin-top:4px;"></div>
-  <button onclick="document.getElementById('err-banner').style.display='none'" style="margin-top:8px; background:#fff; color:#AC4B3F; border:none; border-radius:6px; padding:5px 10px; font-weight:600; font-size:11px;">Cerrar</button>
+  <button onclick="document.getElementById('err-banner').style.display='none'" style="margin-top:8px; background:#fff; color:#8B0D14; border:none; border-radius:6px; padding:5px 10px; font-weight:600; font-size:11px;">Cerrar</button>
 </div>
 
 <script>
@@ -1425,30 +1441,30 @@ function drawSomatoChart(x, y){
   const svg = document.getElementById('r-chart');
   const W = 260, H = 240, cx = W/2, cy = H/2 + 6, scale = 11; // px por unidad de somatotipo
   const range = 9;
-  let g = `<rect x="0" y="0" width="${W}" height="${H}" fill="#EEF2EA" rx="10"/>`;
+  let g = `<rect x="0" y="0" width="${W}" height="${H}" fill="#1C1C1C" rx="10"/>`;
 
   // grid
   for (let i = -range; i <= range; i += 3){
     const gx = cx + i*scale, gy = cy - i*scale;
-    g += `<line x1="${gx}" y1="12" x2="${gx}" y2="${H-12}" stroke="#DBE2D6" stroke-width="1"/>`;
-    g += `<line x1="12" y1="${gy}" x2="${W-12}" y2="${gy}" stroke="#DBE2D6" stroke-width="1"/>`;
+    g += `<line x1="${gx}" y1="12" x2="${gx}" y2="${H-12}" stroke="#2C2C2C" stroke-width="1"/>`;
+    g += `<line x1="12" y1="${gy}" x2="${W-12}" y2="${gy}" stroke="#2C2C2C" stroke-width="1"/>`;
   }
   // axes
-  g += `<line x1="12" y1="${cy}" x2="${W-12}" y2="${cy}" stroke="#8B9789" stroke-width="1.5"/>`;
-  g += `<line x1="${cx}" y1="12" x2="${cx}" y2="${H-12}" stroke="#8B9789" stroke-width="1.5"/>`;
+  g += `<line x1="12" y1="${cy}" x2="${W-12}" y2="${cy}" stroke="#6B6666" stroke-width="1.5"/>`;
+  g += `<line x1="${cx}" y1="12" x2="${cx}" y2="${H-12}" stroke="#6B6666" stroke-width="1.5"/>`;
 
   // labels
-  g += `<text x="${W-14}" y="${cy-6}" font-family="IBM Plex Mono" font-size="9" fill="#51604F" text-anchor="end">ECTOMORFIA</text>`;
-  g += `<text x="14" y="${cy-6}" font-family="IBM Plex Mono" font-size="9" fill="#51604F" text-anchor="start">ENDOMORFIA</text>`;
-  g += `<text x="${cx+5}" y="20" font-family="IBM Plex Mono" font-size="9" fill="#51604F">MESOMORFIA</text>`;
+  g += `<text x="${W-14}" y="${cy-6}" font-family="IBM Plex Mono" font-size="9" fill="#A8A3A3" text-anchor="end">ECTOMORFIA</text>`;
+  g += `<text x="14" y="${cy-6}" font-family="IBM Plex Mono" font-size="9" fill="#A8A3A3" text-anchor="start">ENDOMORFIA</text>`;
+  g += `<text x="${cx+5}" y="20" font-family="IBM Plex Mono" font-size="9" fill="#A8A3A3">MESOMORFIA</text>`;
 
   // point (clamp for display only)
   const px = Math.max(-range, Math.min(range, x));
   const py = Math.max(-range, Math.min(range, y));
   const ptx = cx + px*scale, pty = cy - py*scale;
-  g += `<circle cx="${ptx}" cy="${pty}" r="9" fill="#1E6F5C" fill-opacity="0.18"/>`;
-  g += `<circle cx="${ptx}" cy="${pty}" r="5" fill="#1E6F5C" stroke="#0F4137" stroke-width="1.5"/>`;
-  g += `<text x="${ptx}" y="${pty-12}" font-family="IBM Plex Mono" font-size="10" fill="#0F4137" text-anchor="middle" font-weight="600">${x.toFixed(1)}, ${y.toFixed(1)}</text>`;
+  g += `<circle cx="${ptx}" cy="${pty}" r="9" fill="#8B0D14" fill-opacity="0.35"/>`;
+  g += `<circle cx="${ptx}" cy="${pty}" r="5" fill="#D9695F" stroke="#F0A8A0" stroke-width="1.5"/>`;
+  g += `<text x="${ptx}" y="${pty-12}" font-family="IBM Plex Mono" font-size="10" fill="#F0A8A0" text-anchor="middle" font-weight="600">${x.toFixed(1)}, ${y.toFixed(1)}</text>`;
 
   svg.innerHTML = g;
 }
