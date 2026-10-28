@@ -40,32 +40,41 @@
     *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
   }
 
-  /* ---------- App bar ---------- */
+  /* ---------- App bar (saludo con el logotipo en un círculo, como en ScoutLab) ----------
+     Su alto queda fijo en 67px (círculo de 40 + 12 arriba y abajo + 3 de borde): las
+     pestañas se pegan justo debajo con top:67px. */
   .appbar{
     position:sticky; top:0; z-index:20;
-    background:var(--ink);
+    background:linear-gradient(135deg, var(--ink) 0%, var(--accent-ink) 100%);
     color:#EAF1EA;
-    padding:14px 16px;
+    padding:12px max(16px, calc((100% - 640px) / 2 + 14px));
     display:flex; align-items:center; gap:12px;
     border-bottom:3px solid var(--accent);
   }
-  .mark{ width:34px; height:34px; flex:none; }
-  .appbar-text{ display:flex; flex-direction:column; line-height:1.15; }
-  .appbar-title{ font-family:var(--font-display); font-weight:700; font-size:17px; letter-spacing:0.2px; }
-  .appbar-sub{ font-family:var(--font-mono); font-size:11px; color:#B9CBC0; letter-spacing:0.3px; }
+  .avatar{
+    width:40px; height:40px; border-radius:50%; flex:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--ink); border:2px solid var(--accent);
+  }
+  .avatar svg{ display:block; }
+  .appbar-text{ display:flex; flex-direction:column; line-height:1.2; min-width:0; }
+  .appbar-title{ font-family:var(--font-body); font-weight:700; font-size:16px; white-space:nowrap; }
+  .appbar-sub{ font-size:12px; color:#B9CBC0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  /* ---------- Tabs ---------- */
+  /* ---------- Tabs (píldoras: la activa va rellena) ---------- */
   .tabs{
-    display:flex; gap:0; background:var(--surface);
+    display:flex; gap:6px; background:var(--bg);
     border-bottom:1px solid var(--line);
-    position:sticky; top:62px; z-index:19;
+    position:sticky; top:67px; z-index:19;
+    /* alineadas con el contenido, que mide como máximo 640px */
+    padding:10px max(14px, calc((100% - 640px) / 2 + 14px));
   }
   .tab{
-    flex:1; text-align:center; padding:12px 6px; font-family:var(--font-body);
-    font-weight:600; font-size:13.5px; color:var(--ink-faint);
-    border-bottom:3px solid transparent; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none;
+    padding:8px 16px; border-radius:10px; font-family:var(--font-body);
+    font-weight:600; font-size:13.5px; color:var(--ink-soft);
+    border:none; cursor:pointer; background:none; white-space:nowrap;
   }
-  .tab.active{ color:var(--accent-ink); border-bottom-color:var(--accent); }
+  .tab.active{ background:var(--accent); color:#fff; }
 
   main{ max-width:640px; margin:0 auto; padding:16px 14px 48px; }
   .view{ display:none; }
@@ -127,7 +136,8 @@
   }
   .athlete-card:active{ background:var(--surface-2); }
   .athlete-avatar{
-    width:42px; height:42px; border-radius:50%; background:var(--accent-soft); color:var(--accent-ink);
+    width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, var(--accent), var(--accent-ink)); color:#fff;
+    box-shadow:0 0 0 2px var(--accent-soft);
     display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:15px; flex:none;
   }
   .athlete-info{ flex:1; min-width:0; }
@@ -146,6 +156,16 @@
   .report-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
   .report-name{ font-family:var(--font-display); font-weight:700; font-size:20px; line-height:1.2; }
   .report-sub{ font-size:12.5px; color:var(--ink-faint); margin-top:3px; }
+
+  /* Tarjeta destacada del reporte (equivale a la tarjeta resaltada del diseño):
+     degradado del verde de la app, nombre a la izquierda y % de grasa a la derecha. */
+  .report-hero{ background:linear-gradient(110deg, var(--accent) 0%, var(--accent-ink) 100%); color:#fff; border:none; }
+  .report-hero .report-sub{ color:rgba(255,255,255,.8); }
+  .report-hero .kv{ border-bottom-color:rgba(255,255,255,.25); }
+  .report-hero .kv .k{ color:rgba(255,255,255,.75); }
+  .report-num{ text-align:right; flex:none; }
+  .report-num .n{ font-family:var(--font-mono); font-weight:600; font-size:26px; line-height:1.05; }
+  .report-num .lbl{ font-size:11.5px; color:rgba(255,255,255,.8); }
   .kv{ display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px dashed var(--line); font-size:13.5px; }
   .kv:last-child{ border-bottom:none; }
   .kv .k{ color:var(--ink-soft); }
@@ -183,13 +203,10 @@
 <body>
 
 <div class="appbar">
-  <svg class="mark" viewBox="0 0 40 40" fill="none">
-    <polygon points="20,5 35,32 5,32" stroke="#EAF1EA" stroke-width="2" fill="none" stroke-linejoin="round"/>
-    <circle cx="21" cy="21" r="3" fill="#69C7A8"/>
-  </svg>
+  <span class="avatar"><svg width="24" height="15" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="40,280 95,280 261.4,20 206.4,20" fill="#8B0D14"/><polygon points="135,280 190,280 356.4,20 301.4,20" fill="#8B0D14"/><polygon points="230,280 396.4,20 451.4,20 333,205 460,205 460,280" fill="#8B0D14"/></svg></span>
   <div class="appbar-text">
-    <div class="appbar-title">Cineantropometría</div>
-    <div class="appbar-sub">COMPOSICIÓN CORPORAL · SOMATOTIPO</div>
+    <div class="appbar-title">Hola, Sebastián</div>
+    <div class="appbar-sub">Cineantropometría · Composición corporal y somatotipo</div>
   </div>
 </div>
 
@@ -323,18 +340,19 @@
 
   <!-- ===================== REPORTE ===================== -->
   <section id="view-report" class="view">
+    <!-- Para volver a la lista está la pestaña Atletas. -->
     <div class="btn-row" style="margin-bottom:12px;">
-      <button class="btn btn-ghost" onclick="showView('list')">← Atletas</button>
       <button class="btn btn-ghost" id="btn-copy">Copiar</button>
       <button class="btn btn-ghost" id="btn-edit">Editar</button>
       <button class="btn btn-danger" id="btn-delete">Eliminar</button>
     </div>
-    <div class="card">
+    <div class="card report-hero">
       <div class="report-head">
         <div>
           <div class="report-name" id="r-nombre"></div>
           <div class="report-sub" id="r-sub"></div>
         </div>
+        <div class="report-num"><div class="n" id="r-grasa"></div><div class="lbl">% grasa</div></div>
       </div>
       <div class="kv"><span class="k">Edad al momento de la evaluación</span><span class="v" id="r-edad"></span></div>
       <div class="kv"><span class="k">Estatura / Peso</span><span class="v" id="r-antropo"></span></div>
@@ -1240,6 +1258,7 @@ function openReport(id){
   document.getElementById('r-edad').textContent = `${r.edadDecimal.toFixed(2)} años`;
   document.getElementById('r-antropo').textContent = `${rec.estaturaM.toFixed(2)} m · ${rec.pesoKg.toFixed(1)} kg`;
   document.getElementById('r-metodo').textContent = r.metodoUsado;
+  document.getElementById('r-grasa').textContent = fmt(r.porcentajeGrasa, 1);
 
   document.getElementById('r-tags').innerHTML = `
     <span class="tag ${tagForFat(r.clasifGrasa)}">Grasa: ${r.clasifGrasa}</span>
