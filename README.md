@@ -47,6 +47,18 @@ Se cargan la primera vez que se abre la app en un navegador y desde ahí se
 tratan como cualquier otra evaluación: si se edita o elimina alguna, el cambio
 queda y los datos iniciales no reaparecen.
 
+### Identificar a cada deportista
+
+Cada evaluación tiene un campo **Dorsal** (opcional) y el nombre es editable. El
+dorsal se muestra en el círculo de la ficha, en lugar de las iniciales, y en la
+cabecera del reporte y en el texto que se copia al portapapeles.
+
+Como el repositorio y el sitio son públicos, los datos iniciales van solo con
+iniciales. Para trabajar con los nombres completos o los dorsales reales,
+cárgalos desde la propia app (**Editar** en cada reporte): quedan guardados en
+el navegador de quien los escribe y no se publican ni llegan a este
+repositorio.
+
 ## Almacenamiento
 
 Las evaluaciones se guardan en el navegador del profesional que las carga

@@ -252,6 +252,7 @@
         <div class="section-title"><span class="n">1</span> Datos generales</div>
         <div class="field full"><label>Nombre completo</label><input type="text" id="f-nombre" required></div>
         <div class="grid2">
+          <div class="field"><label>Dorsal <span class="unit">opcional</span></label><input type="text" id="f-dorsal" inputmode="numeric" maxlength="3" placeholder="Ej: 10"></div>
           <div class="field"><label>Deporte</label><input type="text" id="f-deporte" value="fútbol"></div>
           <div class="field"><label>Sexo</label>
             <select id="f-sexo"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select>
@@ -1108,6 +1109,7 @@ function num(id){
 function collectForm(){
   return {
     nombre: fld('f-nombre').value.trim(),
+    dorsal: fld('f-dorsal').value.trim(),
     deporte: fld('f-deporte').value.trim(),
     sexo: fld('f-sexo').value,
     fechaNacimiento: fld('f-fecha-nac').value,
@@ -1136,6 +1138,7 @@ function collectForm(){
 
 function fillForm(rec){
   fld('f-nombre').value = rec.nombre;
+  fld('f-dorsal').value = rec.dorsal || '';
   fld('f-deporte').value = rec.deporte;
   fld('f-sexo').value = rec.sexo;
   fld('f-fecha-nac').value = rec.fechaNacimiento;
@@ -1268,7 +1271,7 @@ function renderList(){
     card.className = 'athlete-card';
     card.onclick = () => openReport(rec.id);
     card.innerHTML = `
-      <div class="athlete-avatar">${initials(rec.nombre || '?')}</div>
+      <div class="athlete-avatar">${rec.dorsal ? escapeHtml(rec.dorsal) : initials(rec.nombre || '?')}</div>
       <div class="athlete-info">
         <div class="athlete-name">${escapeHtml(rec.nombre)}</div>
         <div class="athlete-meta">${escapeHtml(rec.deporte || '—')} · ${r.edadDecimal.toFixed(1)} años · ${formatDate(rec.fechaEvaluacion)}</div>
@@ -1322,7 +1325,12 @@ function openReport(id){
   const r = computeReport(rec);
 
   document.getElementById('r-nombre').textContent = rec.nombre;
-  document.getElementById('r-sub').textContent = `${rec.deporte || 'Sin deporte'} · Periodo: ${rec.periodo || 'Gral'} · Evaluado el ${formatDate(rec.fechaEvaluacion)}`;
+  document.getElementById('r-sub').textContent = [
+    rec.deporte || 'Sin deporte',
+    rec.dorsal ? `Dorsal ${rec.dorsal}` : null,
+    `Periodo: ${rec.periodo || 'Gral'}`,
+    `Evaluado el ${formatDate(rec.fechaEvaluacion)}`,
+  ].filter(Boolean).join(' · ');
   document.getElementById('r-edad').textContent = `${r.edadDecimal.toFixed(2)} años`;
   document.getElementById('r-antropo').textContent = `${rec.estaturaM.toFixed(2)} m · ${rec.pesoKg.toFixed(1)} kg`;
   document.getElementById('r-metodo').textContent = r.metodoUsado;
@@ -1456,7 +1464,7 @@ function buildConclusion(rec, r){
 
 async function copyReport(rec, r){
   const text = `REPORTE CINEANTROPOMÉTRICO
-Nombre: ${rec.nombre}
+Nombre: ${rec.nombre}${rec.dorsal ? `  |  Dorsal: ${rec.dorsal}` : ''}
 Deporte: ${rec.deporte || '-'}  |  Evaluación: ${formatDate(rec.fechaEvaluacion)}  |  Edad: ${r.edadDecimal.toFixed(1)} años
 Estatura: ${rec.estaturaM} m  |  Peso: ${rec.pesoKg} kg  |  Método: ${r.metodoUsado}
 
