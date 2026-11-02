@@ -991,15 +991,25 @@ const SEED_ATLETAS = [
   { id: "atl-18", nombre: "V. C. S.", deporte: "futbol", sexo: "masculino", fechaNacimiento: "2012-07-10", fechaEvaluacion: "2026-03-17", actividad: "alta", periodo: "Gral", estaturaM: 1.515, pesoKg: 41, metodo: "pliegues", sedentario: "no", grasaImpedanciometria: 0, diamHumeral: 5.8, diamRadioCubital: 4.6, diamFemoral: 8.4, plTriceps: 8, plSubescapular: 7, plSupraIliaco: 10, plAbdominal: 21, plMusloAnterior: 18, plMedialPierna: 6, plPectoral: 0, torax: 73.6, abdomenInferior: 69.7, cadera: 77.6, bicepsRelajadoDer: 19.7, bicepsRelajadoIzq: 19.7, bicepsContraidoDer: 21.2, bicepsContraidoIzq: 21, musloSuperiorDer: 41.5, musloSuperiorIzq: 41.3, pantorrillaDer: 31, pantorrillaIzq: 30.5, grasaIdealPct: 10, semanasPrograma: 12, sesionesSemana: 4, duracionSesion: 90, createdAt: "2026-03-17T00:00:00.000Z", updatedAt: "2026-03-17T00:00:00.000Z" },
 ];
 
+// Marca de que las evaluaciones iniciales ya se incorporaron en este
+// navegador. Va en una clave aparte para que tambien lleguen a quien ya
+// tenia evaluaciones guardadas de antes, sin pisarle nada: se agregan las
+// que falten por id y la marca queda puesta, asi que eliminar o editar
+// alguna despues es definitivo.
+const SEED_KEY = 'semilla-2012';
+
 async function loadAtletas(){
   try {
     const res = await withTimeout(window.storage.get('atletas', false), 4000);
-    if (res && res.value){
-      atletas = JSON.parse(res.value);
-      return;
+    atletas = res && res.value ? JSON.parse(res.value) : [];
+
+    const marca = await withTimeout(window.storage.get(SEED_KEY, false), 4000);
+    if (!(marca && marca.value)){
+      const yaEstan = new Set(atletas.map(a => a.id));
+      atletas = atletas.concat(SEED_ATLETAS.filter(a => !yaEstan.has(a.id)).map(a => ({ ...a })));
+      await saveAtletas();
+      await withTimeout(window.storage.set(SEED_KEY, '1', false), 4000);
     }
-    atletas = SEED_ATLETAS.map(a => ({ ...a }));
-    await saveAtletas();
   } catch (e) {
     atletas = SEED_ATLETAS.map(a => ({ ...a }));
   }
