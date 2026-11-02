@@ -157,6 +157,7 @@
   .athlete-info{ flex:1; min-width:0; }
   .athlete-name{ font-weight:600; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .athlete-meta{ font-size:12px; color:var(--ink-faint); font-family:var(--font-mono); margin-top:2px; }
+  .athlete-tags{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:none; }
   .tag{
     font-family:var(--font-mono); font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px;
     white-space:nowrap;
@@ -407,7 +408,7 @@
     <div class="card">
       <div class="section-title">Conclusiones</div>
       <div class="conclusion-box" id="r-conclusion"></div>
-      <div class="disclaimer">Esta herramienta reproduce fórmulas clásicas de cineantropometría (Yuhasz, Jackson-Pollock, Ross-Guimaraes, Heath-Carter) con fines de seguimiento deportivo. La clasificación del %grasa corporal (Excelente/Buena/Aceptable/Mala) usa dos métodos según la edad: en adultos (19+), las categorías del American Council on Exercise (ACE) —Esencial/Atletas/Fitness/Aceptable/Obesidad, con anchos de banda tabulados y verificables—; en niños y adolescentes (6-16 años), un método propio de la literatura pediátrica por percentiles poblacionales de %grasa para la edad y sexo (mediana según McCarthy et al./NHANES 2006 y Cooper Institute FITNESSGRAM; desviación estándar de 7.5 puntos tomada de Moreno et al. sobre bioimpedancia en niños), con el percentil 85 como corte de "Mala" — el mismo principio que usan CDC/OMS para sobrepeso infantil. Entre 16 y 19 años ambos métodos se combinan gradualmente para evitar un salto brusco. El objetivo dentro de "Excelente" se ajusta también por nivel de actividad, con margen de seguridad respecto al piso de grasa esencial. El peso ideal usa ese mismo objetivo: masa libre de grasa ÷ (1 − %grasa objetivo), y solo se sugiere si el %grasa actual está por encima del rango Excelente — nunca se recomienda subir de grasa. Si el IMC está clasificado "Desnutrición", el peso ideal apunta en cambio al punto medio del rango saludable de IMC para su estatura (no solo el piso mínimo), asumiendo que el peso a ganar es masa magra. El gasto calórico de entrenamiento se estima con METs del fútbol del 2011 Compendium of Physical Activities (Ainsworth et al.: casual/general 5.0, competitivo 7.0) × peso × duración de la sesión. La clasificación del IMC en menores de 19 años usa los puntos de corte por edad y sexo de la OMS (WHO Growth Reference 5–19 years, 2007); de 19 años en adelante, categorías estándar de adultos de la OMS. Todo es editable por el profesional a cargo y no reemplaza una valoración médica o nutricional profesional.</div>
+      <div class="disclaimer">Esta herramienta reproduce fórmulas clásicas de cineantropometría (Yuhasz, Jackson-Pollock, Ross-Guimaraes, Heath-Carter) con fines de seguimiento deportivo. La clasificación del %grasa corporal (Excelente/Buena/Aceptable/Mala) usa dos métodos según la edad: en adultos (19+), las categorías del American Council on Exercise (ACE) —Esencial/Atletas/Fitness/Aceptable/Obesidad, con anchos de banda tabulados y verificables—; en niños y adolescentes (6-16 años), un método propio de la literatura pediátrica por percentiles poblacionales de %grasa para la edad y sexo (mediana según McCarthy et al./NHANES 2006 y Cooper Institute FITNESSGRAM; desviación estándar de 7.5 puntos tomada de Moreno et al. sobre bioimpedancia en niños), con el percentil 85 como corte de "Mala" — el mismo principio que usan CDC/OMS para sobrepeso infantil. Entre 16 y 19 años ambos métodos se combinan gradualmente para evitar un salto brusco. El objetivo dentro de "Excelente" se ajusta también por nivel de actividad, con margen de seguridad respecto al piso de grasa esencial. El peso ideal usa ese mismo objetivo: masa libre de grasa ÷ (1 − %grasa objetivo), y solo se sugiere si el %grasa actual está por encima del rango Excelente — nunca se recomienda subir de grasa. Si el IMC está clasificado "Desnutrición" o "Saludable (límite bajo)", el peso ideal apunta en cambio al punto medio del rango saludable de IMC para su estatura (no solo el piso mínimo), asumiendo que el peso a ganar es masa magra. El gasto calórico de entrenamiento se estima con METs del fútbol del 2011 Compendium of Physical Activities (Ainsworth et al.: casual/general 5.0, competitivo 7.0) × peso × duración de la sesión. La clasificación del IMC en menores de 19 años usa los puntos de corte por edad y sexo de la OMS (WHO Growth Reference 5–19 years, 2007); de 19 años en adelante, categorías estándar de adultos de la OMS. A esas categorías se agrega una propia de esta app, "Saludable (límite bajo)", que marca el tercio inferior del rango saludable: la OMS no define nada entre "delgadez" y el resto del rango normal, así que un IMC apenas por encima del corte de delgadez salía "Saludable" sin ninguna advertencia — y como estar bajo de peso baja el %grasa, el mismo deportista recibía además la etiqueta "Excelente" en grasa corporal. En esa franja el %grasa se informa igual, pero la recomendación es ganar masa magra y no reducir grasa. Todo es editable por el profesional a cargo y no reemplaza una valoración médica o nutricional profesional.</div>
     </div>
   </section>
 
@@ -657,10 +658,32 @@ function interpolateBmiThresholds(edad, sexo){
   return table[table.length - 1].slice(1);
 }
 
+// Franja de vigilancia en el extremo bajo del rango saludable.
+//
+// La OMS no define ninguna categoría entre "delgadez" (por debajo de
+// -2DE) y el resto del rango normal: un IMC apenas por encima de ese
+// corte sale "Saludable" sin ninguna advertencia. Para un deportista en
+// formación eso es engañoso, y de la peor manera: estar bajo de peso
+// BAJA el %grasa, así que el mismo chico recibía además la etiqueta
+// "Excelente" en grasa corporal. Las dos lecturas tranquilizadoras se
+// sumaban justo en el caso que más atención necesita.
+//
+// Esta franja es una DECISIÓN DE ESTA APP, no una categoría de la OMS, y
+// se declara como tal: marca el tercio inferior del rango saludable, es
+// decir del corte de delgadez hacia el punto medio del rango — que es el
+// mismo objetivo que ya usa el cálculo de peso ideal (ver más abajo).
+// Suponiendo separación uniforme entre desviaciones estándar, el umbral
+// cae cerca de -1DE; la distribución real del IMC infantil es asimétrica,
+// así que es una aproximación que marca de más, no de menos.
+function umbralLimiteBajo(pisoSaludable, techoSaludable){
+  return pisoSaludable + (techoSaludable - pisoSaludable) / 3;
+}
+
 function classifyIMC(bmi, edadDecimal, sexo){
   if (edadDecimal < 19){
     const [menos2DE, mas1DE, mas2DE, mas3DE] = interpolateBmiThresholds(edadDecimal, sexo);
     if (bmi < menos2DE) return 'Desnutrición';
+    if (bmi < umbralLimiteBajo(menos2DE, mas1DE)) return 'Saludable (límite bajo)';
     if (bmi <= mas1DE) return 'Saludable';
     if (bmi <= mas2DE) return 'Sobrepeso';
     if (bmi <= mas3DE) return 'Obesidad';
@@ -668,6 +691,7 @@ function classifyIMC(bmi, edadDecimal, sexo){
   }
   // 19 años o más: categorías estándar de adultos (OMS)
   if (bmi < 18.5) return 'Desnutrición';
+  if (bmi < umbralLimiteBajo(18.5, 25)) return 'Saludable (límite bajo)';
   if (bmi < 25) return 'Saludable';
   if (bmi < 30) return 'Sobrepeso';
   if (bmi < 35) return 'Obesidad I';
@@ -769,7 +793,8 @@ function computeReport(input) {
   // está en "Excelente" el objetivo efectivo es su %grasa actual (sin
   // cambio); si no, el objetivo es D33, sin superar nunca el valor
   // actual (nunca se recomienda subir de grasa).
-  const bajoPesoPorIMC = clasifIMC === 'Desnutrición';
+  const bajoPesoSevero = clasifIMC === 'Desnutrición';
+  const bajoPesoPorIMC = bajoPesoSevero || clasifIMC === 'Saludable (límite bajo)';
   const yaExcelente = clasifGrasa === 'Excelente';
   let D28, D30, D33efectivo;
   if (bajoPesoPorIMC){
@@ -782,9 +807,11 @@ function computeReport(input) {
     D30 = D28 * (D33efectivo / 100); // peso graso ideal
   }
 
-  const retroalimentacionGrasa = bajoPesoPorIMC
+  const retroalimentacionGrasa = bajoPesoSevero
     ? `Su peso está por debajo de lo esperado para su estatura y edad (IMC: Desnutrición) — esto pesa más que la lectura aislada del %grasa. Se recomienda GANAR peso, priorizando desarrollo muscular y óseo (no reducir grasa), hasta un peso saludable estimado de ${D28.toFixed(1)} kg para su estatura — un objetivo de mitad de rango, no el mínimo, para apuntar a un perfil más mesomórfico (más muscular) y no solo "salir" de la desnutrición.`
-    : buildFatFeedback(D32, clasifGrasa, grasaBandas, D33, deporteNombre);
+    : bajoPesoPorIMC
+      ? `Su IMC (${E44.toFixed(1)}) está en el límite bajo para su edad y estatura: apenas por encima del corte de delgadez de la OMS, que para él está en ${imcPisoSaludable.toFixed(1)}. El %grasa da bajo precisamente porque el peso es bajo, así que leerlo solo como "grasa excelente" sería engañoso. Para ${deporteNombre} conviene GANAR masa magra —trabajo de fuerza con aporte calórico y proteico suficiente— hasta un peso de referencia de ${D28.toFixed(1)} kg, el punto medio del rango saludable de IMC para su estatura. No se recomienda reducir grasa.`
+      : buildFatFeedback(D32, clasifGrasa, grasaBandas, D33, deporteNombre);
 
   const H29 = H7 - (D31 + M27 + H27); // peso muscular actual
   const M27ideal = esFemenino ? (D28 * 20.9) / 100 : (D28 * 24.1) / 100; // peso residual ideal (escalado al peso ideal, no al actual)
@@ -869,7 +896,7 @@ function computeReport(input) {
     endomorfia: D36, mesomorfia: D37, ectomorfia: D38,
     ejeX: G37, ejeY: I37, indiceHW: J37,
     clasifGrasa, clasifIMC, clasifCinturaCadera, riesgoCoronario, retroalimentacionGrasa,
-    bajoPesoPorIMC, caloriasDieta, proteinaDia,
+    bajoPesoPorIMC, bajoPesoSevero, caloriasDieta, proteinaDia,
     gastoEntrenamientoSesion, gastoEntrenamientoSemanal,
     superavitSemanal, superavitSesion,
   };
@@ -1249,6 +1276,22 @@ function initials(name){
   return name.trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
 }
 
+// Chips de la ficha. Antes era uno solo, sin etiqueta y con el %grasa:
+// se leía como veredicto general, de modo que un chico bajo de peso
+// aparecía en verde como "Excelente". Ahora el chip dice qué clasifica, y
+// cuando el IMC no está plenamente saludable se agrega su propio chip —
+// así el bajo peso se ve en la lista y no solo dentro del reporte.
+function tagsResumen(r){
+  const chips = [`<span class="tag ${tagForFat(r.clasifGrasa)}">Grasa: ${r.clasifGrasa}</span>`];
+  if (r.clasifIMC !== 'Saludable'){
+    // En la ficha va la forma corta: el chip completo empuja el nombre a
+    // cortarse con elipsis. El reporte sí muestra la etiqueta entera.
+    const corto = r.clasifIMC === 'Saludable (límite bajo)' ? 'límite bajo' : r.clasifIMC;
+    chips.push(`<span class="tag ${r.bajoPesoSevero ? 'tag-bad' : 'tag-warn'}">IMC: ${escapeHtml(corto)}</span>`);
+  }
+  return chips.join('');
+}
+
 function tagForFat(clasif){
   if (clasif === 'Excelente') return 'tag-good';
   if (clasif === 'Buena') return 'tag-warn';
@@ -1276,7 +1319,7 @@ function renderList(){
         <div class="athlete-name">${escapeHtml(rec.nombre)}</div>
         <div class="athlete-meta">${escapeHtml(rec.deporte || '—')} · ${r.edadDecimal.toFixed(1)} años · ${formatDate(rec.fechaEvaluacion)}</div>
       </div>
-      <span class="tag ${tagForFat(r.clasifGrasa)}">${r.clasifGrasa}</span>
+      <div class="athlete-tags">${tagsResumen(r)}</div>
       <button class="del-btn" title="Eliminar" data-id="${rec.id}">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m2 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7"/></svg>
       </button>`;
@@ -1443,8 +1486,10 @@ function buildConclusion(rec, r){
   const deporte = (rec.deporte || '').trim() || 'este deporte';
   const yaSaludable = r.clasifGrasa === 'Excelente' && !r.bajoPesoPorIMC;
   let fraseFraseo;
-  if (r.bajoPesoPorIMC){
+  if (r.bajoPesoSevero){
     fraseFraseo = `está por debajo del peso esperado para su estatura (IMC: desnutrición); se recomienda GANAR peso —principalmente masa muscular y ósea— hasta un peso saludable estimado de ${r.pesoIdeal.toFixed(1)} kg`;
+  } else if (r.bajoPesoPorIMC){
+    fraseFraseo = `tiene un IMC en el límite bajo para su estatura y edad, apenas por encima del corte de delgadez; su %grasa da bajo porque el peso es bajo, no porque la composición corporal sea óptima. Se recomienda GANAR masa magra hasta un peso de referencia de ${r.pesoIdeal.toFixed(1)} kg, sin buscar reducir grasa`;
   } else if (yaSaludable){
     fraseFraseo = `ya tiene un %grasa saludable para su edad (${r.clasifGrasa.toLowerCase()}), por lo que su peso actual (${rec.pesoKg.toFixed(1)} kg) no necesita cambiar`;
   } else {
